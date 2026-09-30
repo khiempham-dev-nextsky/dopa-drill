@@ -43,6 +43,7 @@
           <button type="button" id="open-tree" class="sub-btn">Cây kỹ năng <b id="tree-badge"></b></button>
           <button type="button" id="open-trophy" class="sub-btn">Cúp <b id="trophy-badge"></b></button>
           <button type="button" id="open-collect" class="sub-btn">Bộ sưu tập <b id="collect-badge"></b></button>
+          <button type="button" id="open-leaderboard" class="sub-btn">Bảng xếp hạng</button>
         </div>
       </div>
       <section class="quest-card" id="quests" aria-labelledby="quest-title">
@@ -98,6 +99,23 @@
       <div class="co-preview" id="co-preview" aria-hidden="true"><div class="stamp co-mark" id="co-mark"></div><p class="co-now" id="co-now"></p></div>
       <div class="co-tabs" id="co-tabs" role="group" aria-label="Loại"></div>
       <div class="co-scroll" id="co-scroll"><p class="co-note" id="co-note"></p><div class="co-grid" id="co-grid"></div></div>
+    </section>
+
+    <!-- Leaderboard -->
+    <section id="screen-leaderboard" class="screen" aria-labelledby="leaderboard-title">
+      <header class="tree-head">
+        <button type="button" class="icon-btn" id="leaderboard-back" aria-label="Quay lại">‹</button>
+        <h2 id="leaderboard-title">Bảng xếp hạng</h2>
+        <span class="tree-count">Top 50</span>
+      </header>
+      <div class="leaderboard-wrap">
+        <div class="leaderboard-card" id="leaderboard-card">
+          <p class="leaderboard-note" id="leaderboard-status" role="status">Đang tải bảng xếp hạng…</p>
+          <p class="leaderboard-me" id="leaderboard-me" hidden></p>
+          <ol class="leaderboard-list" id="leaderboard-list"></ol>
+          <button type="button" class="sub-btn" id="leaderboard-refresh">↻ Cập nhật</button>
+        </div>
+      </div>
     </section>
 
     <!-- Play -->
@@ -219,6 +237,12 @@
         <p class="set-note" id="reset-note">Xóa toàn bộ dữ liệu và trở về ban đầu</p>
       </div>
       <div class="set-row">
+        <span class="set-label">Người chơi <b id="player-name-label"></b></span>
+        <button type="button" class="sub-btn name-edit-btn" id="edit-player-name">Đổi tên</button>
+        <p class="set-note">Tên hiển thị trên bảng xếp hạng</p>
+      </div>
+
+      <div class="set-row">
         <span class="set-label">Về dự án</span>
         <button type="button" class="sub-btn credit-btn" id="open-credit">♡ Cảm ơn tác giả</button>
         <p class="set-note">Gửi lời cảm ơn và xem mã nguồn trên GitHub</p>
@@ -226,6 +250,18 @@
       <button type="button" class="big-btn" id="close-settings">Đóng</button>
     </div>
   </div>
+  <div class="modal" id="player-name" role="dialog" aria-modal="true" aria-labelledby="player-name-title" hidden>
+    <form class="modal-card name-card" id="player-name-form">
+      <h2 id="player-name-title" class="chip">Chào mừng!</h2>
+      <p class="name-copy" id="player-name-copy">Nhập tên để lưu thành tích và xuất hiện trên bảng xếp hạng.</p>
+      <label class="name-label" for="player-name-input">Tên hiển thị</label>
+      <input id="player-name-input" class="name-input" type="text" maxlength="24" autocomplete="nickname" placeholder="Ví dụ: Minh Anh" required>
+      <p class="name-error" id="player-name-error" role="alert" hidden></p>
+      <button type="submit" class="big-btn" id="save-player-name">Bắt đầu</button>
+      <button type="button" class="sub-btn name-cancel-btn" id="cancel-player-name" hidden>Hủy</button>
+    </form>
+  </div>
+
   <div class="modal credit-modal" id="credit" role="dialog" aria-modal="true" aria-labelledby="credit-title" hidden>
     <div class="modal-card credit-card">
       <h2 id="credit-title" class="chip">Cảm ơn tác giả</h2>

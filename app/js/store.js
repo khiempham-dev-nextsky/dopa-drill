@@ -1,3 +1,5 @@
+import { normalizePlayerName } from './leaderboard.js';
+
 // Local-first persistence with optional server sync. Offline gameplay never waits on the network.
 // Every read tolerates missing, blocked, or corrupted storage.
 
@@ -8,6 +10,7 @@ export function defaultState() {
   return {
     version: VERSION,
     guideSeen: false,
+    playerName: '',
     settings: { count: 10, sound: true, volume: 0.8, motion: null },
     history: [],
   };
@@ -41,6 +44,10 @@ function ensureDeviceId(storage) {
   if (!meta.deviceId) { meta.deviceId = newDeviceId(); writeSyncMeta(storage, meta); }
   sync.deviceId = meta.deviceId;
   return meta;
+}
+export function playerId(storage = backend()) {
+  if (!storage) return null;
+  return ensureDeviceId(storage).deviceId;
 }
 function syncUrl() {
   const origin = globalThis.location?.origin;
@@ -136,6 +143,7 @@ export function load(storage = backend()) {
         base.settings = { ...base.settings, ...(data.settings || {}) };
         base.history = Array.isArray(data.history) ? data.history : [];
         base.guideSeen = data.guideSeen === true;
+        base.playerName = normalizePlayerName(data.playerName);
         for (const [k, v] of Object.entries(data)) if (!(k in base)) base[k] = v;
       }
     } catch { /* corrupted: start fresh */ }
@@ -161,6 +169,12 @@ export function settings() { return load().settings; }
 
 export function hasSeenGuide() { return load().guideSeen === true; }
 export function markGuideSeen() { load().guideSeen = true; save(); }
+export function playerName() { return normalizePlayerName(load().playerName); }
+export function setPlayerName(value) {
+  load().playerName = normalizePlayerName(value);
+  save();
+  return load().playerName;
+}
 
 export function updateSettings(patch) {
   Object.assign(load().settings, patch);

@@ -16,6 +16,7 @@ import * as qs from './quests.js';
 import * as tr from './trophies.js';
 import * as ul from './unlocks.js';
 import { BASIC_SCORE, extraPoints, basicDopaL, extraProblemGain, addDopa, comboMult, comboMaxed, comboWindowMs, comboMilestone, fmtDopa, unitOf, unitLabel } from './scoring.js';
+import * as lb from './leaderboard.js';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -42,7 +43,7 @@ const S = {
   E: 0.06, visualE: 0.02, level: 0, ready: false, reach: false, shownWrong: null, wrongInQ: false,
   firstTry: 0, solved: 0, misses: 0, combo: 0, comboEnd: 0, comboLimit: 1, startT: 0, endT: 0, targetMs: 0, mode: 'basic',
   extra: { score: 0, solved: 0, misses: 0, end: 0, over: false }, digitsDone: 0, digitsTotal: 1,
-  dopa: { L: 0, shown: 0, unit: '' }, reduced: false, motion: 1, settingsOpen: false, creditOpen: false,
+  dopa: { L: 0, shown: 0, unit: '' }, reduced: false, motion: 1, settingsOpen: false, creditOpen: false, playerNameOpen: false, playerNameRequired: false, playerNameReturn: null,
   run: 0, muted: false, kick: 0, flash: 0, shake: 0, cells: {}, lines: {}, idleAt: 0, busyUntil: 0,
 };
 window.__dopa = { S, audio };
@@ -53,7 +54,7 @@ const guide = createGuide({ hero, reduced: () => S.reduced, onClose: () => {
   checkLoginBonus();
 } });
 function openGuide(help = false) {
-  if (S.demo || S.screen !== 'title' || S.guideOpen || S.settingsOpen || S.creditOpen || S.bonusOpen || S.hammerOpen || S.trophyOpen || S.confirm || S.scene) return;
+  if (S.demo || S.screen !== 'title' || S.guideOpen || S.settingsOpen || S.creditOpen || S.playerNameOpen || S.bonusOpen || S.trophyOpen || S.confirm || S.scene) return;
   clearTimeout(titleRewardTimer);
   S.guideOpen = true;
   guide.open({ help });
@@ -81,8 +82,8 @@ function layoutActors() {
   // Cancel any running body action so it does not drag the hero back to old coordinates.
   hero.begin();
   let r;
-  if (S.creditOpen || S.settingsOpen || S.bonusOpen || S.confirm || S.hammerOpen || S.trophyOpen || S.skillInfo) {
-    const c = $(S.creditOpen ? '#credit .modal-card' : S.bonusOpen ? '#bonus .modal-card' : S.confirm ? '#confirm .modal-card' : S.hammerOpen ? '#hammer .modal-card' : S.trophyOpen ? '#trophy-got .modal-card' : S.skillInfo ? '#skill-info .modal-card' : '#settings .modal-card').getBoundingClientRect();
+  if (S.playerNameOpen || S.creditOpen || S.settingsOpen || S.bonusOpen || S.confirm || S.hammerOpen || S.trophyOpen || S.skillInfo) {
+    const c = $(S.playerNameOpen ? '#player-name .modal-card' : S.creditOpen ? '#credit .modal-card' : S.bonusOpen ? '#bonus .modal-card' : S.confirm ? '#confirm .modal-card' : S.hammerOpen ? '#hammer .modal-card' : S.trophyOpen ? '#trophy-got .modal-card' : S.skillInfo ? '#skill-info .modal-card' : '#settings .modal-card').getBoundingClientRect();
     hero.S = 0.5; hero.place(c.left + c.width * 0.78, c.top + 4); hero.lift = 0; hero.rot = 0;
     return;
   }
@@ -97,6 +98,12 @@ function layoutActors() {
   if (S.screen === 'collect') {
     const b = $('#co-preview').getBoundingClientRect();
     hero.S = clamp(b.height / 260, 0.4, 0.62); hero.place(b.left + b.width / 2, b.bottom - 14); hero.lift = 0; hero.rot = 0;
+    return;
+  }
+  if (S.screen === 'leaderboard') {
+    const c = $('#leaderboard-card').getBoundingClientRect();
+    hero.S = clamp(c.height / 300, 0.42, 0.68); hero.place(c.left + c.width / 2, c.bottom - 10); hero.lift = 0; hero.rot = 0;
+    crowd.forEach((m, i) => placeCrowd(m, i));
     return;
   }
   if (S.screen === 'tree') {
@@ -1129,6 +1136,14 @@ function bigStamp(text) {
   })();
 }
 
+function leaderboardEligible() {
+  return recording() && S.plan && S.plan.mode !== 'review' && store.playerName() && store.playerId();
+}
+function submitLeaderboardScore(score) {
+  if (!leaderboardEligible()) return;
+  void lb.submitLeaderboard({ playerId: store.playerId(), name: store.playerName(), score });
+}
+
 function showResult() {
   const rate = S.firstTry / S.N;
   $('#r-score').textContent = String(BASIC_SCORE);
@@ -1142,6 +1157,7 @@ function showResult() {
   const ok = rate >= 0.8 && !review;
   if (S.plan.placement && !S.demo) { progress().placed = true; store.save(); }
   S.record = S.demo ? null : store.addRecord({ mode: S.plan.mode, grade: S.plan.grade, skill: S.plan.skill, count: S.N, score: BASIC_SCORE, ok: S.solved, ng: S.misses, firstRate: rate, timeMs: Math.round(t), dopaL: S.dopa.L });
+  submitLeaderboardScore(BASIC_SCORE);
   if (recording()) { growth.notePlay(stats(), { mode: S.plan.mode, day: store.dayKey(), timeMs: Math.round(t), dopaL: S.dopa.L, firstRate: rate }); store.save(); }
   questNote({ type: 'play', mode: S.plan.mode });
   $('#result-title').textContent = review ? 'Ôn tập hoàn thành' : `${modeName(S.plan)} hoàn thành`;
@@ -1206,6 +1222,7 @@ async function endExtra() {
 function showFinal() {
   const total = BASIC_SCORE + S.extra.score;
   if (S.record) store.updateRecord(S.record.id, { score: total, extraOk: S.extra.solved, extraNg: S.extra.misses, dopaL: S.dopa.L });
+  submitLeaderboardScore(total);
   if (recording()) { growth.noteDopa(stats(), S.dopa.L); store.save(); }
   $('#f-break').textContent = `Cơ bản ${BASIC_SCORE} ＋ Thử thách ${S.extra.score.toLocaleString('vi-VN')}`;
   $('#f-ok').innerHTML = `${S.extra.solved}<small>câu</small>`;
@@ -1535,7 +1552,7 @@ onFrame((dt, t) => {
 
 // Title screen idle performance.
 onFrame((dt, t) => {
-  if (S.screen !== 'title' || S.guideOpen || S.reduced || S.settingsOpen || S.confirm || S.bonusOpen || S.hammerOpen || S.trophyOpen || S.scene) return;
+  if (S.screen !== 'title' || S.guideOpen || S.reduced || S.settingsOpen || S.playerNameOpen || S.creditOpen || S.confirm || S.bonusOpen || S.hammerOpen || S.trophyOpen || S.scene) return;
   if (t > S.idleAt && t > S.busyUntil) {
     S.idleAt = t + rand(1600, 2800);
     const r = $('#title-stage').getBoundingClientRect();
@@ -2032,8 +2049,8 @@ function titleTrophies() {
   refreshTrophyBadge();
   const ts = trophyState();
   // Shown only if the player is still on the title; otherwise they wait for the next chance.
-  if (S.trophyQueue.length || (ts.batch && ts.batch.length)) setTimeout(() => { if (S.screen === 'title' && !S.bonusOpen && !S.hammerOpen && !S.scene && !S.settingsOpen && !S.confirm && !S.demo && !S.guideOpen) openTrophies(); }, 450);
-  else setTimeout(maybeShowFirstCredit, 450);
+  if (S.trophyQueue.length || (ts.batch && ts.batch.length)) setTimeout(() => { if (S.screen === 'title' && !S.bonusOpen && !S.hammerOpen && !S.scene && !S.settingsOpen && !S.playerNameOpen && !S.confirm && !S.demo && !S.guideOpen) openTrophies(); }, 450);
+  else setTimeout(maybeAskPlayerName, 450);
 }
 function refreshTrophyBadge() { $('#trophy-badge').textContent = `${tr.earnedCount(trophyState())}/${tr.TROPHIES.length}`; }
 
@@ -2046,7 +2063,7 @@ function trophySvg(rank = 'none') {
 }
 
 function openTrophies() {
-  if (S.trophyOpen || S.demo || S.guideOpen) return;
+  if (S.trophyOpen || S.demo || S.guideOpen || S.playerNameOpen) return;
   const ts = trophyState();
   const batch = (ts.batch || []).map((id) => tr.TROPHY[id]).filter(Boolean);
   const list = batch.length ? batch : S.trophyQueue.splice(0);
@@ -2078,7 +2095,7 @@ function closeTrophies() {
   audio.play('blip', audio.now(), { m: 76, v: 0.1 });
   refreshTrophyBadge();
   requestAnimationFrame(layoutActors);
-  if (S.trophyQueue.length) setTimeout(openTrophies, 300); else setTimeout(maybeShowFirstCredit, 300);
+  if (S.trophyQueue.length) setTimeout(openTrophies, 300); else setTimeout(maybeAskPlayerName, 300);
 }
 
 // The list screen: one card per series, folded; filters for earned / not yet.
@@ -2382,8 +2399,8 @@ function openDay(key) {
 // ---------------------------------------------------------------- settings panel
 S.previewE = 0.04;
 function openSettings() {
-  if (S.demo || S.guideOpen) return;
-  audio.unlock();
+  if (S.demo || S.guideOpen || S.playerNameOpen) return;
+  renderPlayerNameLabel();
   const m = $('#settings');
   m.hidden = false;
   S.settingsOpen = true;
@@ -2403,6 +2420,66 @@ function closeSettings() {
   // Trophies held back while the panel was open.
   if (S.screen === 'title' && !S.demo) titleTrophies();
 }
+function renderPlayerNameLabel() {
+  const name = store.playerName();
+  $('#player-name-label').textContent = name || 'Chưa đặt';
+}
+function openPlayerName({ automatic = false, returnTo = null } = {}) {
+  if (S.demo || S.screen !== 'title' || S.guideOpen || S.settingsOpen || S.creditOpen || S.playerNameOpen || S.bonusOpen || S.hammerOpen || S.trophyOpen || S.confirm || S.scene) return;
+  const m = $('#player-name');
+  const input = $('#player-name-input');
+  S.playerNameOpen = true;
+  S.playerNameRequired = automatic;
+  S.playerNameReturn = returnTo;
+  input.value = store.playerName();
+  $('#player-name-title').textContent = automatic ? 'Chào mừng!' : 'Tên người chơi';
+  $('#player-name-copy').textContent = automatic ? 'Nhập tên để lưu thành tích và xuất hiện trên bảng xếp hạng.' : 'Tên này sẽ hiển thị trên bảng xếp hạng của Dopa Drill.';
+  $('#save-player-name').textContent = automatic ? 'Bắt đầu' : 'Lưu tên';
+  $('#cancel-player-name').hidden = automatic;
+  $('#player-name-error').hidden = true;
+  m.hidden = false;
+  audio.unlock();
+  audio.play('blip', audio.now(), { m: 82, v: 0.1 });
+  const card = m.querySelector('.modal-card');
+  if (!S.reduced) tween(260, (k) => { card.style.transform = `translateY(${(1 - k) * 30}px) scale(${0.92 + 0.08 * k})`; }, easeOutBack).then(() => { card.style.transform = ''; });
+  requestAnimationFrame(() => { layoutActors(); input.focus({ preventScroll: true }); input.select(); });
+}
+function closePlayerName({ saved = false } = {}) {
+  const required = S.playerNameRequired;
+  const returnTo = S.playerNameReturn;
+  $('#player-name').hidden = true;
+  S.playerNameOpen = false;
+  S.playerNameRequired = false;
+  S.playerNameReturn = null;
+  requestAnimationFrame(layoutActors);
+  if (saved) {
+    audio.play('blip', audio.now(), { m: 86, v: 0.1 });
+    renderPlayerNameLabel();
+    if (returnTo === 'leaderboard') setTimeout(openLeaderboard, 0);
+    else if (required) setTimeout(maybeShowFirstCredit, 350);
+  }
+  $(returnTo === 'leaderboard' ? '#open-leaderboard' : '#open-settings').focus({ preventScroll: true });
+}
+function submitPlayerName(e) {
+  e.preventDefault();
+  const name = lb.normalizePlayerName($('#player-name-input').value);
+  if (!lb.validPlayerName(name)) {
+    const error = $('#player-name-error');
+    error.textContent = 'Nhập ít nhất một ký tự nhé.';
+    error.hidden = false;
+    $('#player-name-input').focus({ preventScroll: true });
+    return;
+  }
+  store.setPlayerName(name);
+  closePlayerName({ saved: true });
+}
+function maybeAskPlayerName() {
+  if (S.demo || params.has('skill') || params.has('demo') || params.has('capture')) return;
+  if (store.playerName()) { maybeShowFirstCredit(); return; }
+  if (S.screen !== 'title' || S.guideOpen || S.settingsOpen || S.creditOpen || S.playerNameOpen || S.bonusOpen || S.hammerOpen || S.trophyOpen || S.confirm || S.scene) return;
+  openPlayerName({ automatic: true });
+}
+
 const CREDIT_SEEN_KEY = 'dopa-drill:credit-seen:v1';
 function creditWasSeen() {
   try { return localStorage.getItem(CREDIT_SEEN_KEY) === '1'; } catch { return true; }
@@ -2412,11 +2489,11 @@ function markCreditSeen() {
 }
 function maybeShowFirstCredit() {
   if (creditWasSeen() || params.has('skill') || params.has('demo') || params.has('capture')) return;
-  if (S.screen !== 'title' || S.guideOpen || S.settingsOpen || S.creditOpen || S.bonusOpen || S.hammerOpen || S.trophyOpen || S.confirm || S.scene) return;
+  if (S.screen !== 'title' || S.guideOpen || S.settingsOpen || S.creditOpen || S.playerNameOpen || S.bonusOpen || S.hammerOpen || S.trophyOpen || S.confirm || S.scene) return;
   openCredit({ automatic: true });
 }
 function openCredit({ automatic = false } = {}) {
-  if (S.demo || S.screen !== 'title' || S.creditOpen || (!automatic && !S.settingsOpen)) return;
+  if (S.demo || S.screen !== 'title' || S.creditOpen || S.playerNameOpen || (!automatic && !S.settingsOpen)) return;
   markCreditSeen();
   const m = $('#credit');
   m.hidden = false;
@@ -2433,6 +2510,65 @@ function closeCredit() {
   audio.play('blip', audio.now(), { m: 72, v: 0.08 });
   requestAnimationFrame(layoutActors);
   (S.settingsOpen ? $('#open-credit') : $('#open-settings')).focus({ preventScroll: true });
+}
+let leaderboardRequest = 0;
+function renderLeaderboardRows(entries) {
+  const list = $('#leaderboard-list');
+  list.replaceChildren();
+  if (!entries.length) {
+    const empty = document.createElement('li');
+    empty.className = 'leaderboard-empty';
+    empty.textContent = 'Chưa có điểm nào. Hãy là người đầu tiên!';
+    list.append(empty);
+    return;
+  }
+  entries.forEach((item, index) => {
+    const row = document.createElement('li');
+    row.className = `leaderboard-row${item.me ? ' me' : ''}`;
+    const rank = document.createElement('span');
+    rank.className = 'leaderboard-rank';
+    rank.textContent = String(item.rank || index + 1);
+    const name = document.createElement('span');
+    name.className = 'leaderboard-name';
+    name.textContent = String(item.name || 'Bạn chơi');
+    const score = document.createElement('b');
+    score.className = 'leaderboard-score';
+    score.textContent = `${Number(item.score || 0).toLocaleString('vi-VN')} điểm`;
+    row.append(rank, name, score);
+    list.append(row);
+  });
+}
+async function refreshLeaderboard() {
+  const token = ++leaderboardRequest;
+  const button = $('#leaderboard-refresh');
+  const status = $('#leaderboard-status');
+  const me = $('#leaderboard-me');
+  button.disabled = true;
+  status.textContent = 'Đang tải bảng xếp hạng…';
+  me.hidden = true;
+  const result = await lb.fetchLeaderboard({ playerId: store.playerId() });
+  if (token !== leaderboardRequest) return;
+  button.disabled = false;
+  if (!result.ok) {
+    status.textContent = result.offline ? 'Chưa kết nối được bảng xếp hạng. Điểm của bạn vẫn được lưu trên máy.' : 'Bảng xếp hạng đang tạm nghỉ. Thử lại sau nhé.';
+    renderLeaderboardRows([]);
+    return;
+  }
+  const entries = Array.isArray(result.entries) ? result.entries : [];
+  status.textContent = entries.length ? 'Điểm cao nhất mọi thời đại' : 'Chưa có ai ghi điểm.';
+  renderLeaderboardRows(entries);
+  if (result.me) {
+    me.textContent = `Bạn đang hạng ${result.me.rank} · ${Number(result.me.score || 0).toLocaleString('vi-VN')} điểm`;
+    me.hidden = false;
+  }
+}
+function openLeaderboard() {
+  if (S.demo || S.screen !== 'title' || S.guideOpen || S.settingsOpen || S.creditOpen || S.playerNameOpen || S.bonusOpen || S.hammerOpen || S.trophyOpen || S.confirm || S.scene) return;
+  if (!store.playerName()) { openPlayerName({ returnTo: 'leaderboard' }); return; }
+  audio.unlock();
+  showScreen('leaderboard');
+  void refreshLeaderboard();
+  requestAnimationFrame(() => $('#leaderboard-refresh').focus({ preventScroll: true }));
 }
 
 function askReset() {
@@ -2490,12 +2626,19 @@ $('#cal-grid').addEventListener('click', (e) => { const b = e.target.closest('[d
 $('#close-day').addEventListener('click', () => { $('#day-log').hidden = true; });
 $('#day-log').addEventListener('click', (e) => { if (e.target.id === 'day-log') $('#day-log').hidden = true; });
 $('#screen-title').addEventListener('scroll', () => requestAnimationFrame(layoutActors), { passive: true });
-$$('#screen-result, #screen-final, #tree-scroll, #tr-scroll').forEach((el) => el.addEventListener('scroll', () => requestAnimationFrame(layoutActors), { passive: true }));
+$$('#screen-result, #screen-final, #tree-scroll, #tr-scroll, #screen-leaderboard .leaderboard-wrap').forEach((el) => el.addEventListener('scroll', () => requestAnimationFrame(layoutActors), { passive: true }));
 $('#open-settings').addEventListener('click', openSettings);
 $('#open-guide').addEventListener('click', () => openGuide(true));
 $('#close-settings').addEventListener('click', closeSettings);
 $('#open-credit').addEventListener('click', openCredit);
 $('#close-credit').addEventListener('click', closeCredit);
+$('#player-name-form').addEventListener('submit', submitPlayerName);
+$('#player-name-input').addEventListener('input', () => { $('#player-name-error').hidden = true; });
+$('#cancel-player-name').addEventListener('click', () => closePlayerName());
+$('#edit-player-name').addEventListener('click', () => { closeSettings(); openPlayerName(); });
+$('#open-leaderboard').addEventListener('click', openLeaderboard);
+$('#leaderboard-back').addEventListener('click', () => { audio.play('blip', audio.now(), { m: 72, v: 0.08 }); toTitle(); });
+$('#leaderboard-refresh').addEventListener('click', () => { audio.unlock(); void refreshLeaderboard(); });
 $('#reset-data').addEventListener('click', askReset);
 $('#demo-play').addEventListener('click', startDemo);
 $('#bonus-ok').addEventListener('click', closeBonus);
@@ -2568,7 +2711,7 @@ addEventListener('keydown', (e) => {
   if (guide.keydown(e)) return;
   if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
   if (S.demo) { e.preventDefault(); stopDemo(); return; }
-  if (S.creditOpen) { if (e.key === 'Escape') closeCredit(); return; }
+  if (S.playerNameOpen) { if (e.key === 'Escape' && !S.playerNameRequired) closePlayerName(); return; }
   if (S.settingsOpen) { if (e.key === 'Escape') closeSettings(); return; }
   if (S.confirm) { if (e.key === 'Escape') closeConfirm(); return; }
   if (S.screen === 'tree' && e.key === 'Delete' && document.activeElement && document.activeElement.classList.contains('node')) { askRelock(document.activeElement.dataset.id); e.preventDefault(); return; }

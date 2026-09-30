@@ -8,7 +8,7 @@ Mục tiêu là tạo trải nghiệm luyện tính một ít mỗi ngày và nh
 
 Câu sai được hiển thị là “Suýt đúng” và có thể trả lời lại. Sao, cúp và hiệu ứng đã nhận không bị lấy lại vì trả lời sai hoặc nghỉ chơi. Chuỗi ngày có cơ chế bù ngày nghỉ; màn hình so sánh tiến bộ chỉ hiển thị các mục đã cải thiện. Phần thưởng mở theo điều kiện, không có quay số hoặc mua hàng.
 
-Giao diện tiếng Việt phục vụ việc luyện tính cho học sinh tiểu học và người lớn. Trọng tâm là màn hình dọc trên điện thoại, đồng thời hỗ trợ chuột và bàn phím trên máy tính. Không cần đăng ký tài khoản. Dữ liệu được lưu riêng theo từng trình duyệt, không tự đồng bộ giữa các thiết bị.
+Giao diện tiếng Việt phục vụ việc luyện tính cho học sinh tiểu học và người lớn. Trọng tâm là màn hình dọc trên điện thoại, đồng thời hỗ trợ chuột và bàn phím trên máy tính. Không cần đăng ký tài khoản; tên hiển thị chỉ là định danh cho bảng xếp hạng cộng đồng. Dữ liệu cá nhân được lưu riêng theo từng trình duyệt và có thể đồng bộ theo ID thiết bị ẩn danh.
 
 ## 2. Màn hình và luồng sử dụng
 
@@ -16,16 +16,16 @@ Giao diện tiếng Việt phục vụ việc luyện tính cho học sinh tiể
 
 | Màn hình | Nội dung và thao tác chính |
 | --- | --- |
-| Trang chính | Logo, Dopakichi, Trình độ của mình, Ôn tập bên dưới, lớp 1–6, Cây kỹ năng, Cúp, Bộ sưu tập, Nhiệm vụ, Lịch, Cài đặt, ? |
+| Trang chính | Logo, Dopakichi, Trình độ của mình, Ôn tập bên dưới, lớp 1–6, Cây kỹ năng, Cúp, Bộ sưu tập, Bảng xếp hạng, Nhiệm vụ, Lịch, Cài đặt, ? |
 | Chơi | Bài toán, các ô nhập, bàn phím số riêng, số câu đúng, số lần suýt đúng, đồng hồ, Dopa, combo, tiến độ, tắt âm thanh |
 | Kết quả cơ bản | 100 điểm, thời gian, tỷ lệ đúng ngay lần đầu, Dopa, kết quả tiến bộ/kỹ năng/nhiệm vụ; vào màn thử thách khi đủ điều kiện, ôn tập, chơi lại, về trang chính |
 | Kết quả cuối | Điểm và Dopa gồm màn thử thách, số câu đúng, số lần suýt đúng, nhiệm vụ, ôn tập và về trang chính |
 | Cây kỹ năng | Quan hệ tiên quyết, trạng thái mở/luyện/thạo, sao, kỹ năng nguội, mô tả và luyện tập, xóa một phần thành tích |
 | Cúp | Thành tích theo nhóm và chuỗi, ngày nhận, điều kiện và phần thưởng, bộ lọc, thành tích sắp đạt |
 | Bộ sưu tập | Xem thử/nghe thử hiệu ứng đã mở, chọn cố định hoặc ngẫu nhiên theo danh mục |
-| Cài đặt | Số câu, âm thanh, âm lượng, mức chuyển động, chơi thử tự động, xóa toàn bộ dữ liệu |
+| Cài đặt | Số câu, tên người chơi, âm thanh, âm lượng, mức chuyển động, chơi thử tự động, xóa toàn bộ dữ liệu |
 
-Luồng thông thường là “Trang chính → Bài cơ bản → Kết quả cơ bản → tùy chọn màn thử thách → Kết quả cuối”. Ôn tập chỉ có đến kết quả cơ bản. Các nút thao tác ở màn hình kết quả được cố định ở cạnh dưới để vẫn dùng được khi danh sách tiến bộ dài thêm.
+Khi vào lần đầu, người chơi nhập tên hiển thị trước khi bắt đầu. Tên có thể đổi trong Cài đặt. Điểm cao nhất của mỗi ID thiết bị được gửi lên bảng xếp hạng toàn thời gian khi có kết nối Neon; nếu offline, điểm vẫn được lưu trong lịch sử cục bộ và sẽ không hiện trên bảng cộng đồng cho đến khi gửi được.
 
 ### 2.2 Hướng dẫn đầu tiên và trợ giúp “?”
 
@@ -120,7 +120,7 @@ Hoàn thành phần cơ bản được 100 điểm. Nếu bài thử thách hoà
 100 + 10 × n + 5 × n × (n − 1) ÷ 2
 ```
 
-5 bài được 200 điểm, 10 bài được 425 điểm, 15 bài được 775 điểm, 23 bài được 1595 điểm, 30 bài được 2575 điểm. Không có trần điểm cố định. Combo, tốc độ và số lần suýt đúng không nhân hoặc trừ điểm.
+5 bài được 200 điểm, 10 bài được 425 điểm, 15 bài được 775 điểm, 23 bài được 1595 điểm, 30 bài được 2575 điểm. Không có trần điểm cố định. Combo, tốc độ và số lần suýt đúng không nhân hoặc trừ điểm. Sau mỗi lượt chơi thật, điểm cao nhất của người chơi được cập nhật trên bảng xếp hạng; chơi thử tự động và ôn tập không gửi điểm.
 
 ### 5.2 Cách tính Dopa
 

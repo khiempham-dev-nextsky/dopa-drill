@@ -7,6 +7,7 @@ Dopa Drill là trò luyện tính nhẩm cho lớp 1–6. Mỗi câu trả lời
 - 58 kỹ năng tính toán cho lớp 1–6: cộng, trừ, nhân, chia, số thập phân, phân số, phần trăm và các nội dung liên quan.
 - Chế độ **Trình độ của mình**, theo khối, luyện tập, ôn tập và cây kỹ năng.
 - Thành tích, nhiệm vụ, cúp, bộ sưu tập và phần thưởng được lưu cục bộ để chơi offline.
+- Lần đầu vào app có thể đặt tên hiển thị; điểm cao nhất được gửi lên bảng xếp hạng toàn thời gian khi Neon khả dụng.
 - Đồng bộ write-behind lên Neon PostgreSQL khi có `DATABASE_URL` và mạng. Không có Neon hoặc mất mạng thì game vẫn chạy đầy đủ bằng `localStorage`.
 - PWA có manifest và service worker; sau lần mở online đầu tiên, game có thể khởi chạy và chơi ngoại tuyến.
 - Font Baloo 2 cho chữ số/phép tính và Nunito cho văn bản giao diện.
@@ -34,9 +35,9 @@ cp .env.example .env.local
 npm run db:migrate
 ```
 
-API đồng bộ nằm tại `app/api/sync/route.js`. Dữ liệu được định danh bằng một ID thiết bị ẩn danh trong localStorage; tính năng này không phải hệ thống tài khoản hay xác thực người dùng. Chỉ nên đồng bộ dữ liệu không nhạy cảm.
+API đồng bộ nằm tại `app/api/sync/route.js`; API bảng xếp hạng nằm tại `app/api/leaderboard/route.js`. Dữ liệu cá nhân được định danh bằng một ID thiết bị ẩn danh trong localStorage; tên hiển thị không phải tài khoản hay xác thực người dùng. Bảng xếp hạng là bảng điểm cộng đồng đơn giản, không phải hệ thống chống gian lận.
 
-Nếu bỏ qua `DATABASE_URL` hoặc migration, phần Neon trả về trạng thái offline và ứng dụng tiếp tục dùng lưu trữ cục bộ.
+Nếu bỏ qua `DATABASE_URL` hoặc migration, phần Neon trả về trạng thái offline; game và lịch sử cục bộ vẫn chạy đầy đủ, còn bảng xếp hạng không tải được.
 
 ### Build production
 
