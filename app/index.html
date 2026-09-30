@@ -218,7 +218,21 @@
         <button type="button" class="sub-btn danger reset-btn" id="reset-data" aria-describedby="reset-note">Đặt lại tất cả</button>
         <p class="set-note" id="reset-note">Xóa toàn bộ dữ liệu và trở về ban đầu</p>
       </div>
+      <div class="set-row">
+        <span class="set-label">Về dự án</span>
+        <button type="button" class="sub-btn credit-btn" id="open-credit">♡ Cảm ơn tác giả</button>
+        <p class="set-note">Gửi lời cảm ơn và xem mã nguồn trên GitHub</p>
+      </div>
       <button type="button" class="big-btn" id="close-settings">Đóng</button>
+    </div>
+  </div>
+  <div class="modal credit-modal" id="credit" role="dialog" aria-modal="true" aria-labelledby="credit-title" hidden>
+    <div class="modal-card credit-card">
+      <h2 id="credit-title" class="chip">Cảm ơn tác giả</h2>
+      <p class="credit-copy">Cảm ơn tác giả đã tạo ra dự án Dopa Drill.</p>
+      <p class="credit-copy">Bạn có thể xem mã nguồn tại:</p>
+      <a class="credit-link" href="https://github.com/grmchn/dopa-drill" target="_blank" rel="noopener noreferrer">github.com/grmchn/dopa-drill ↗</a>
+      <button type="button" class="big-btn" id="close-credit">Đóng</button>
     </div>
   </div>
 

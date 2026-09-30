@@ -42,7 +42,7 @@ const S = {
   E: 0.06, visualE: 0.02, level: 0, ready: false, reach: false, shownWrong: null, wrongInQ: false,
   firstTry: 0, solved: 0, misses: 0, combo: 0, comboEnd: 0, comboLimit: 1, startT: 0, endT: 0, targetMs: 0, mode: 'basic',
   extra: { score: 0, solved: 0, misses: 0, end: 0, over: false }, digitsDone: 0, digitsTotal: 1,
-  dopa: { L: 0, shown: 0, unit: '' }, reduced: false, motion: 1, settingsOpen: false,
+  dopa: { L: 0, shown: 0, unit: '' }, reduced: false, motion: 1, settingsOpen: false, creditOpen: false,
   run: 0, muted: false, kick: 0, flash: 0, shake: 0, cells: {}, lines: {}, idleAt: 0, busyUntil: 0,
 };
 window.__dopa = { S, audio };
@@ -53,7 +53,7 @@ const guide = createGuide({ hero, reduced: () => S.reduced, onClose: () => {
   checkLoginBonus();
 } });
 function openGuide(help = false) {
-  if (S.demo || S.screen !== 'title' || S.guideOpen || S.settingsOpen || S.bonusOpen || S.hammerOpen || S.trophyOpen || S.confirm || S.scene) return;
+  if (S.demo || S.screen !== 'title' || S.guideOpen || S.settingsOpen || S.creditOpen || S.bonusOpen || S.hammerOpen || S.trophyOpen || S.confirm || S.scene) return;
   clearTimeout(titleRewardTimer);
   S.guideOpen = true;
   guide.open({ help });
@@ -82,7 +82,7 @@ function layoutActors() {
   hero.begin();
   let r;
   if (S.settingsOpen || S.bonusOpen || S.confirm || S.hammerOpen || S.trophyOpen || S.skillInfo) {
-    const c = $(S.bonusOpen ? '#bonus .modal-card' : S.confirm ? '#confirm .modal-card' : S.hammerOpen ? '#hammer .modal-card' : S.trophyOpen ? '#trophy-got .modal-card' : S.skillInfo ? '#skill-info .modal-card' : '#settings .modal-card').getBoundingClientRect();
+    const c = $(S.creditOpen ? '#credit .modal-card' : S.bonusOpen ? '#bonus .modal-card' : S.confirm ? '#confirm .modal-card' : S.hammerOpen ? '#hammer .modal-card' : S.trophyOpen ? '#trophy-got .modal-card' : S.skillInfo ? '#skill-info .modal-card' : '#settings .modal-card').getBoundingClientRect();
     hero.S = 0.5; hero.place(c.left + c.width * 0.78, c.top + 4); hero.lift = 0; hero.rot = 0;
     return;
   }
@@ -2402,6 +2402,24 @@ function closeSettings() {
   // Trophies held back while the panel was open.
   if (S.screen === 'title' && !S.demo) titleTrophies();
 }
+function openCredit() {
+  if (S.demo || !S.settingsOpen || S.creditOpen) return;
+  const m = $('#credit');
+  m.hidden = false;
+  S.creditOpen = true;
+  audio.play('blip', audio.now(), { m: 82, v: 0.1 });
+  const card = m.querySelector('.modal-card');
+  if (!S.reduced) tween(260, (k) => { card.style.transform = `translateY(${(1 - k) * 30}px) scale(${0.92 + 0.08 * k})`; }, easeOutBack).then(() => { card.style.transform = ''; });
+  requestAnimationFrame(layoutActors);
+  $('#close-credit').focus({ preventScroll: true });
+}
+function closeCredit() {
+  $('#credit').hidden = true;
+  S.creditOpen = false;
+  audio.play('blip', audio.now(), { m: 72, v: 0.08 });
+  requestAnimationFrame(layoutActors);
+  $('#open-credit').focus({ preventScroll: true });
+}
 
 function askReset() {
   if (S.demo || !S.settingsOpen) return;
@@ -2462,6 +2480,8 @@ $$('#screen-result, #screen-final, #tree-scroll, #tr-scroll').forEach((el) => el
 $('#open-settings').addEventListener('click', openSettings);
 $('#open-guide').addEventListener('click', () => openGuide(true));
 $('#close-settings').addEventListener('click', closeSettings);
+$('#open-credit').addEventListener('click', openCredit);
+$('#close-credit').addEventListener('click', closeCredit);
 $('#reset-data').addEventListener('click', askReset);
 $('#demo-play').addEventListener('click', startDemo);
 $('#bonus-ok').addEventListener('click', closeBonus);
@@ -2481,6 +2501,7 @@ $$('.tr-filter button').forEach((b) => b.addEventListener('click', () => { trFil
 $('#tr-list').addEventListener('toggle', (e) => { if (e.target.open) audio.play('blip', audio.now(), { m: 84, v: 0.07 }); }, true);
 $('#hammer-no').addEventListener('click', () => closeHammer(false));
 $('#settings').addEventListener('click', (e) => { if (e.target.id === 'settings') closeSettings(); });
+$('#credit').addEventListener('click', (e) => { if (e.target.id === 'credit') closeCredit(); });
 $('[data-toggle="sound"]').addEventListener('click', () => { audio.unlock(); setMuted(!S.muted); if (!S.muted) audio.play('blip', audio.now(), { m: 84, v: 0.12 }); });
 $('#volume').addEventListener('input', (e) => { audio.unlock(); const v = e.target.value / 100; setVolume(v); audio.play('blip', audio.now(), { m: 64 + Math.round(v * 20), v: 0.12 }); });
 $('#motion').addEventListener('input', (e) => { const v = e.target.value / 100; setMotion(v); motionSliderFx(v); });
@@ -2533,6 +2554,7 @@ addEventListener('keydown', (e) => {
   if (guide.keydown(e)) return;
   if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
   if (S.demo) { e.preventDefault(); stopDemo(); return; }
+  if (S.creditOpen) { if (e.key === 'Escape') closeCredit(); return; }
   if (S.settingsOpen) { if (e.key === 'Escape') closeSettings(); return; }
   if (S.confirm) { if (e.key === 'Escape') closeConfirm(); return; }
   if (S.screen === 'tree' && e.key === 'Delete' && document.activeElement && document.activeElement.classList.contains('node')) { askRelock(document.activeElement.dataset.id); e.preventDefault(); return; }

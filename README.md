@@ -11,6 +11,7 @@ Dopa Drill là trò luyện tính nhẩm cho lớp 1–6. Mỗi câu trả lời
 - PWA có manifest và service worker; sau lần mở online đầu tiên, game có thể khởi chạy và chơi ngoại tuyến.
 - Font Baloo 2 cho chữ số/phép tính và Nunito cho văn bản giao diện.
 - Web Audio API tổng hợp âm thanh, không cần tệp âm thanh.
+- Trong Cài đặt có popup cảm ơn tác giả và liên kết tới mã nguồn gốc trên GitHub.
 
 ## Chạy cục bộ bằng Next.js
 
