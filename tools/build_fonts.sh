@@ -5,9 +5,8 @@ set -euo pipefail
 GAME="$(cd "$(dirname "$0")/../app" && pwd)"
 WORK="$(mktemp -d)"
 BASE=https://raw.githubusercontent.com/google/fonts/main/ofl
-curl -sSfo "$WORK/dela.ttf" "$BASE/delagothicone/DelaGothicOne-Regular.ttf"
-curl -sSfo "$WORK/zen-bold.ttf" "$BASE/zenmarugothic/ZenMaruGothic-Bold.ttf"
-curl -sSfo "$WORK/zen-black.ttf" "$BASE/zenmarugothic/ZenMaruGothic-Black.ttf"
+curl -sSfo "$WORK/baloo.ttf" "$BASE/baloo2/Baloo2%5Bwght%5D.ttf"
+curl -sSfo "$WORK/nunito.ttf" "$BASE/nunito/Nunito%5Bwght%5D.ttf"
 python3 - "$GAME" "$WORK/chars.txt" <<'PY'
 import sys, pathlib
 game = pathlib.Path(sys.argv[1])
@@ -17,7 +16,7 @@ for f in [*game.glob('*.html'), *game.glob('*.css'), *game.glob('js/*.js')]:
 chars |= set('０１２３４５６７８９＋−×÷＝、。・！？「」（）ー〜…')
 pathlib.Path(sys.argv[2]).write_text(''.join(sorted(c for c in chars if ord(c) >= 0x20)), encoding='utf-8')
 PY
-for pair in "dela dela-gothic-one" "zen-bold zen-maru-gothic-bold" "zen-black zen-maru-gothic-black"; do
+for pair in "baloo baloo-2" "nunito nunito"; do
   set -- $pair
   uv run --no-project --with fonttools --with brotli pyftsubset "$WORK/$1.ttf" --text-file="$WORK/chars.txt" --flavor=woff2 --layout-features='*' --output-file="$GAME/fonts/$2.woff2"
 done

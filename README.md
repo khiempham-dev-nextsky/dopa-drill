@@ -1,64 +1,64 @@
-# ドパドリル
+# Dopa Drill
 
-算数を1問解くたびに、演出と音楽がどんどん盛り上がっていく計算ドリルです。ブラウザだけで動きます。
+Dopa Drill là trò luyện tính nhẩm, trong đó mỗi câu trả lời làm phần trình diễn và âm nhạc sôi động hơn. Trò chơi chạy hoàn toàn trong trình duyệt.
 
-マスコットの「ドパキチ」が入力した数字を運び、正解すると祝ってくれます。問題を進めるほど画面と音が増えていき、最後はお祭りのような状態になります。まちがえても勢いは落ちず、ゲームオーバーもありません。
+Linh vật Dopakichi mang các chữ số bạn nhập; trả lời đúng sẽ được chúc mừng. Càng giải nhiều câu, màn hình và âm thanh càng phong phú, rồi kết thúc như một lễ hội. Trả lời sai không làm mất đà và không có trạng thái game over.
 
-## 特徴
+## Tính năng
 
-- 小学1〜6年の計算58スキル（学習指導要領に基づく）。足し算・ひき算・かけ算・わり算、筆算の途中入力、小数、分数、割合など
-- 「じぶんレベル」モード：実力チェックの結果から始め、習熟に合わせて次のスキルを解放します
-- 学年別モード、練習、復習、スキルツリー画面
-- 全問正解で100点。初回正解率が80%以上なら、制限時間付きのエクストラで100点を超える得点を狙えます
-- 音楽と効果音はすべてWeb Audio APIで合成しています（音声ファイルは使っていません）
-- スマートフォンの縦画面とPCに対応。PCでは数字キーとBackspaceで入力できます
-- 設定で動きの強さを調整できます。ミュートもあります
-- 記録はすべて端末内（localStorage）に保存し、外部には送信しません
+- 58 kỹ năng tính toán cho lớp 1–6: cộng, trừ, nhân, chia, nhập từng bước của phép tính dọc, số thập phân, phân số, phần trăm và các nội dung liên quan.
+- Chế độ **Trình độ của mình**: bắt đầu bằng kiểm tra năng lực, sau đó mở khóa kỹ năng tiếp theo theo tiến độ.
+- Chế độ theo khối, luyện tập, ôn tập và cây kỹ năng.
+- Hoàn thành toàn bộ câu cơ bản được 100 điểm. Nếu tỷ lệ đúng ngay lần đầu từ 80%, bạn có thể vào màn thử thách có giới hạn thời gian để vượt 100 điểm.
+- Nhạc và hiệu ứng âm thanh đều được tổng hợp bằng Web Audio API, không dùng tệp âm thanh.
+- Hỗ trợ màn hình dọc trên điện thoại và máy tính. Trên máy tính có thể nhập bằng phím số và Backspace.
+- Có thể điều chỉnh mức độ chuyển động và tắt âm thanh trong phần cài đặt.
+- Thành tích được lưu trong thiết bị bằng `localStorage`, không gửi ra bên ngoài.
 
-## 遊び方（ローカル）
+## Chạy cục bộ
 
-ビルドは不要です。`app/` を静的に配信するだけで動きます。
+Không cần build. Chỉ cần phân phối tĩnh thư mục `app/`:
 
 ```bash
 python3 -m http.server 8000 -d app
 ```
 
-ブラウザで `http://localhost:8000/` を開いてください。ES Modulesを使っているため、`file://` で直接開くと動きません。
+Mở `http://localhost:8000/` trong trình duyệt. Vì ứng dụng dùng ES Modules, mở trực tiếp bằng `file://` sẽ không hoạt động.
 
-## テスト
+## Kiểm thử
 
-Node.js 20以上で実行します。
+Cần Node.js 20 trở lên:
 
 ```bash
 node --test tests/*.test.mjs
 ```
 
-## 構成
+## Cấu trúc
 
-| パス | 内容 |
+| Đường dẫn | Nội dung |
 | --- | --- |
-| `app/` | ゲーム本体（依存ライブラリなしのES Modules） |
-| `docs/SPEC.md` | 仕様書 |
-| `docs/curriculum.md` | 学年別カリキュラムとスキルツリーの設計 |
-| `docs/dopakichi.svg` | ドパキチの造形の原典 |
-| `tests/` | 単体テスト |
-| `tools/build_fonts.sh` | フォントのサブセット再生成（画面の文言を追加したときに実行） |
+| `app/` | Trò chơi chính, dùng ES Modules và không có thư viện phụ thuộc |
+| `docs/SPEC.md` | Đặc tả hành vi |
+| `docs/curriculum.md` | Chương trình theo khối và thiết kế cây kỹ năng |
+| `docs/dopakichi.svg` | Tài liệu hình mẫu của Dopakichi |
+| `tests/` | Kiểm thử đơn vị |
+| `tools/build_fonts.sh` | Tạo lại font subset khi thêm chữ hiển thị |
 
-## ライセンス
+## Giấy phép
 
-- ソースコード：MIT License
-- キャラクター「ドパキチ」、および「ドパドリル」の名称とロゴ：MITの対象外です。営利目的でなければ、二次創作に自由に使えます（下記）。
-- フォント（`app/fonts/`）：SIL Open Font License 1.1
+- Mã nguồn: MIT License.
+- Linh vật Dopakichi, tên và logo Dopa Drill không thuộc phạm vi MIT. Bạn được tự do dùng cho tác phẩm phái sinh phi thương mại theo các điều kiện bên dưới.
+- Font Baloo 2 và Nunito trong `app/fonts/`: SIL Open Font License 1.1.
 
-詳細は [LICENSE](LICENSE) を参照してください。
+Xem chi tiết trong [LICENSE](LICENSE).
 
-### ドパキチ・ドパドリルの二次創作について
+### Tác phẩm phái sinh của Dopakichi và Dopa Drill
 
-営利目的でなければ、連絡なしで自由に使えます。
+Bạn được tự do sử dụng mà không cần liên hệ trước nếu không nhằm mục đích thương mại.
 
-- できること：ファンアート、漫画、小説、アニメーション、動画、SNSへの投稿、このゲームの非営利のフォークや改造版の公開
-- プレイ動画・配信：自由です。広告収益や投げ銭のあるプラットフォームでも構いません
-- 事前の許可が必要なこと：グッズや作品の販売、有料の製品・サービス・広告での利用などの商用利用。ほかの製品やサービスの名前・マスコット・ブランドとしての利用や、公式を名乗ること
-- 禁止：公序良俗に反する使い方、キャラクターや本プロジェクトの評判を傷つける使い方
+- Được phép: fan art, truyện tranh, tiểu thuyết, hoạt hình, video, đăng lên mạng xã hội, fork hoặc bản sửa đổi phi thương mại của trò chơi.
+- Video chơi game và livestream: được phép, kể cả trên nền tảng có quảng cáo hoặc tiền ủng hộ.
+- Cần xin phép trước: bán hàng hóa hoặc tác phẩm, dùng trong sản phẩm/dịch vụ/quảng cáo trả phí hay mục đích thương mại khác; dùng tên, linh vật hoặc thương hiệu này cho sản phẩm/dịch vụ khác; tự nhận là bản chính thức.
+- Không được phép: sử dụng trái với trật tự và chuẩn mực công cộng, hoặc làm tổn hại danh tiếng của nhân vật hay dự án.
 
-公開するときは、非公式であることが分かるようにしてください。LICENSEの英文と内容が異なる場合は、英文が優先します。
+Khi phát hành, hãy ghi rõ đó là sản phẩm không chính thức. Nếu bản dịch này khác nội dung tiếng Anh trong LICENSE, bản tiếng Anh được ưu tiên.

@@ -1,154 +1,154 @@
-# ドパドリル — 公開版仕様書
+# Dopa Drill — Đặc tả bản phát hành
 
-ドパドリルは、計算を解くたびにマスコットの動き、画面の演出、音楽が増幅するブラウザゲームです。本書は、遊ぶ人と保護者、開発・改変に関心のある人に向けて、現在の実装の動作を説明します。数値は今後の調整で変更する場合があります。
+Dopa Drill là trò chơi trình duyệt trong đó chuyển động của linh vật, hiệu ứng màn hình và âm nhạc tăng dần sau mỗi câu tính. Tài liệu này mô tả hành vi hiện tại cho người chơi, phụ huynh và những người muốn phát triển hoặc chỉnh sửa dự án. Các con số có thể thay đổi khi cân bằng trò chơi.
 
-## 1. 概要と設計の考え方
+## 1. Tổng quan và nguyên tắc thiết kế
 
-毎日少しずつ計算を続け、過去の自分からの成長を確認できる体験を目指します。基本問題は時間を超えても続けられ、全問を解けば100点になります。ゲームオーバーはありません。
+Mục tiêu là tạo trải nghiệm luyện tính một ít mỗi ngày và nhìn thấy tiến bộ so với chính mình trong quá khứ. Phần bài cơ bản vẫn tiếp tục sau khi quá thời gian; hoàn thành toàn bộ được 100 điểm. Không có game over.
 
-誤答は「おしい」と表示し、答え直せます。獲得した星・トロフィー・演出は、失敗や欠席で取り上げません。連続記録には休んだ日を補う仕組みがあり、成長の比較では改善した項目だけを表示します。報酬は条件達成で解放し、抽選や課金による入手はありません。
+Câu sai được hiển thị là “Suýt đúng” và có thể trả lời lại. Sao, cúp và hiệu ứng đã nhận không bị lấy lại vì trả lời sai hoặc nghỉ chơi. Chuỗi ngày có cơ chế bù ngày nghỉ; màn hình so sánh tiến bộ chỉ hiển thị các mục đã cải thiện. Phần thưởng mở theo điều kiện, không có quay số hoặc mua hàng.
 
-日本語の画面で、小学生の計算練習と大人の利用に対応します。スマートフォン縦画面を中心に、PCのマウス・キーボードでも操作できます。アカウント登録は不要です。ブラウザごとに記録するため、別の端末との自動同期はありません。
+Giao diện tiếng Việt phục vụ việc luyện tính cho học sinh tiểu học và người lớn. Trọng tâm là màn hình dọc trên điện thoại, đồng thời hỗ trợ chuột và bàn phím trên máy tính. Không cần đăng ký tài khoản. Dữ liệu được lưu riêng theo từng trình duyệt, không tự đồng bộ giữa các thiết bị.
 
-## 2. 画面と流れ
+## 2. Màn hình và luồng sử dụng
 
-### 2.1 画面一覧
+### 2.1 Danh sách màn hình
 
-| 画面 | 内容と主な操作 |
+| Màn hình | Nội dung và thao tác chính |
 | --- | --- |
-| タイトル | ロゴ、ドパキチ、じぶんレベル、その直下のふくしゅう、1〜6ねんせい、スキルツリー、トロフィー、コレクション、クエスト、カレンダー、設定、？ |
-| プレイ | 問題、入力するマス、専用テンキー、正解数、おしいの回数、時計、ドパ、コンボ、進行表示、ミュート |
-| 基本結果 | 100点、時間、初回正解率、ドパ、成長・スキル・クエストの結果。条件達成時のエクストラ、やりなおし、再プレイ、タイトルへの操作 |
-| 最終結果 | エクストラを含む得点とドパ、正解数、おしいの回数、クエスト、やりなおし・タイトルへの操作 |
-| スキルツリー | 前提関係、解放・練習・マスターの状態、星、さび、スキルの説明と練習、記録の部分削除 |
-| トロフィー | 分類・シリーズ別の実績、獲得日、条件と報酬、絞り込み、もうすぐ獲得できる実績 |
-| コレクション | 解放された演出の試し見・試聴、カテゴリごとの固定またはおまかせ |
-| 設定 | 問題数、音、音量、動きの強さ、デモプレイ、全データのリセット |
+| Trang chính | Logo, Dopakichi, Trình độ của mình, Ôn tập bên dưới, lớp 1–6, Cây kỹ năng, Cúp, Bộ sưu tập, Nhiệm vụ, Lịch, Cài đặt, ? |
+| Chơi | Bài toán, các ô nhập, bàn phím số riêng, số câu đúng, số lần suýt đúng, đồng hồ, Dopa, combo, tiến độ, tắt âm thanh |
+| Kết quả cơ bản | 100 điểm, thời gian, tỷ lệ đúng ngay lần đầu, Dopa, kết quả tiến bộ/kỹ năng/nhiệm vụ; vào màn thử thách khi đủ điều kiện, ôn tập, chơi lại, về trang chính |
+| Kết quả cuối | Điểm và Dopa gồm màn thử thách, số câu đúng, số lần suýt đúng, nhiệm vụ, ôn tập và về trang chính |
+| Cây kỹ năng | Quan hệ tiên quyết, trạng thái mở/luyện/thạo, sao, kỹ năng nguội, mô tả và luyện tập, xóa một phần thành tích |
+| Cúp | Thành tích theo nhóm và chuỗi, ngày nhận, điều kiện và phần thưởng, bộ lọc, thành tích sắp đạt |
+| Bộ sưu tập | Xem thử/nghe thử hiệu ứng đã mở, chọn cố định hoặc ngẫu nhiên theo danh mục |
+| Cài đặt | Số câu, âm thanh, âm lượng, mức chuyển động, chơi thử tự động, xóa toàn bộ dữ liệu |
 
-通常は「タイトル → 基本問題 → 基本結果 → 任意のエクストラ → 最終結果」と進みます。ふくしゅうは基本結果までです。結果画面の操作ボタンは下端に固定し、成長の記録が増えても次の操作に進めるようにします。
+Luồng thông thường là “Trang chính → Bài cơ bản → Kết quả cơ bản → tùy chọn màn thử thách → Kết quả cuối”. Ôn tập chỉ có đến kết quả cơ bản. Các nút thao tác ở màn hình kết quả được cố định ở cạnh dưới để vẫn dùng được khi danh sách tiến bộ dài thêm.
 
-### 2.2 初回ガイドと「？」ヘルプ
+### 2.2 Hướng dẫn đầu tiên và trợ giúp “?”
 
-初回は5ページのガイドを表示します。導入、じぶんレベル、学年別、スキルツリー、じぶんレベルを勧める案内の順です。設定ボタンの下の「？」では、トロフィーとコレクションを加えた7ページの説明を再表示できます。
+Lần đầu mở ứng dụng, hướng dẫn có 5 trang: giới thiệu, Trình độ của mình, theo lớp, Cây kỹ năng và lời khuyên chọn Trình độ của mình. Nút “?” dưới Cài đặt mở lại hướng dẫn 7 trang, bổ sung Cúp và Bộ sưu tập.
 
-説明対象をスポットライトで照らし、必要に応じてスクロールします。説明文は独立したカードに表示し、ドパキチは移動・指さし・表情で案内します。ドパキチの台詞としては表示しません。最後は「じぶんレベル」と「？」を示し、同時に画面内へ収まらなければカード内に同じ疑問符アイコンを表示します。
+Đối tượng được giới thiệu sẽ được chiếu sáng và màn hình cuộn khi cần. Nội dung nằm trong thẻ riêng; Dopakichi hướng dẫn bằng chuyển động, chỉ tay và biểu cảm, không có lời thoại. Trang cuối chỉ Trình độ của mình và nút “?”; nếu không thể vừa trong màn hình, cùng biểu tượng dấu hỏi sẽ xuất hiện trong thẻ.
 
-「つぎへ」「もどる」「とばす」、最後の「はじめる！」で操作します。Enter・右矢印は次へ、左矢印は前へ、Escapeはスキップ、Tabはガイド内のフォーカス移動です。暗幕を押しても閉じず、ガイド中は背景のボタンを操作できません。
+Các nút là “Tiếp”, “Quay lại”, “Bỏ qua” và “Bắt đầu!” ở trang cuối. Enter và mũi tên phải sang trang tiếp, mũi tên trái quay lại, Escape bỏ qua, Tab di chuyển tiêu điểm trong hướng dẫn. Nhấn nền tối không đóng hướng dẫn; các nút phía sau không thể thao tác trong lúc hướng dẫn mở.
 
-最後まで見た場合もスキップした場合も表示済みとして保存します。初回ガイドの後は、ノーカンハンマー、ログインボーナス、トロフィー通知の順に処理します。全リセット後には再び初回ガイドを表示します。デモ中と確認用の一部URLでは自動表示しません。
+Dù xem hết hay bỏ qua, trạng thái đã xem được lưu. Sau hướng dẫn đầu tiên, ứng dụng xử lý lần lượt búa bỏ qua, thưởng đăng nhập và thông báo cúp. Sau khi xóa toàn bộ dữ liệu, hướng dẫn đầu tiên xuất hiện lại. Hướng dẫn không tự mở trong lúc chơi thử hoặc ở một số URL kiểm tra.
 
-## 3. モード
+## 3. Chế độ chơi
 
-### 3.1 じぶんレベル
+### 3.1 Trình độ của mình
 
-初回は「じつりょくチェック」です。学年、前提関係の深さの順に並べたスキルを進み、初回正解なら出題対象とその前提スキルをまとめてマスター・☆1にします。移動幅は最初6、正解後に現在の幅の1.3倍を切り上げて最大12、誤答後に半分を切り捨てて最小1です。誤答後は最後に初回正解した位置より先の範囲へ戻ります。基本問題を終えるとチェック済みになります。
+Lần đầu là “Kiểm tra năng lực”. Kỹ năng được duyệt theo khối và độ sâu tiên quyết. Khi trả lời đúng ngay lần đầu, bài đang kiểm tra cùng các kỹ năng tiên quyết được chuyển sang thạo và nhận ☆1. Bước di chuyển ban đầu là 6; sau câu đúng, bước hiện tại nhân 1,3 rồi làm tròn lên, tối đa 12; sau câu sai, chia đôi rồi làm tròn xuống, tối thiểu 1. Sau câu sai, hệ thống quay về vùng phía sau vị trí gần nhất trả lời đúng ngay lần đầu. Hoàn thành phần cơ bản thì kiểm tra được đánh dấu xong.
 
-以後の出題は、前提関係の深さ、学年、スキル定義順を基に選びます。マスター済みの末尾6スキルから復習を選び、復習枠は `min(候補数, max(1, round(問題数 × 0.3)))` 問です。さびたスキルを優先し、残りは候補からランダムに選びます。マスター済みがなければ復習枠は0です。
+Sau đó, bài được chọn dựa trên độ sâu tiên quyết, khối và thứ tự định nghĩa kỹ năng. Ôn tập lấy từ 6 kỹ năng thạo cuối cùng; số ôn là `min(số ứng viên, max(1, round(số câu × 0.3)))`. Kỹ năng nguội được ưu tiên, phần còn lại chọn ngẫu nhiên. Nếu chưa có kỹ năng thạo thì số ôn là 0.
 
-残りは解放済み・未マスターの先頭4スキルを順番に繰り返します。すべてマスター済みならマスター済み全体から選びます。エクストラは未マスター候補の末尾3スキル、なければマスター済みの末尾3スキルを繰り返します。チェック直後のエクストラは、解放済み・未マスターの先頭から選びます。
+Các câu còn lại lặp lần lượt 4 kỹ năng đầu tiên đã mở nhưng chưa thạo. Nếu tất cả đã thạo, chọn từ toàn bộ kỹ năng thạo. Màn thử thách lặp 3 kỹ năng cuối trong nhóm chưa thạo; nếu không có thì lặp 3 kỹ năng thạo cuối. Ngay sau kiểm tra năng lực, màn thử thách bắt đầu từ kỹ năng đầu tiên đã mở nhưng chưa thạo.
 
-### 3.2 学年別
+### 3.2 Theo khối
 
-解放状態を問わず、選んだ学年のスキルから基本問題を出題します。前提関係の浅いものから深いものへ進む並びに乱数の揺らぎを加えます。解答結果は通常の習熟にも反映します。
+Bài cơ bản lấy từ các kỹ năng của khối đã chọn, không phụ thuộc trạng thái mở. Thứ tự đi từ quan hệ tiên quyết nông đến sâu, có thêm biến động ngẫu nhiên. Kết quả vẫn được tính vào tiến độ thạo thông thường.
 
-エクストラの最初の6問は、その学年のスキル列の `floor(スキル数 × 0.55)` 番目以降を繰り返します。7問目からは次の学年の先頭最大4スキルへ切り替わります。6年生では同じ学年の後半を続けます。
+Sáu câu thử thách đầu lặp các kỹ năng từ vị trí `floor(số kỹ năng × 0.55)` trở đi trong khối đó. Từ câu thứ 7, chuyển sang tối đa 4 kỹ năng đầu của khối kế tiếp. Với lớp 6, tiếp tục phần sau của cùng khối.
 
-### 3.3 れんしゅう
+### 3.3 Luyện tập
 
-スキルツリーから、解放済みのスキルを選んで練習します。マスター済みなら説明画面から練習を開始できます。基本問題はそのスキル、エクストラはそのスキルを直接の前提とする解放済みのスキルから選びます。対象がなければ同じスキルを続けます。
+Chọn một kỹ năng đã mở trong Cây kỹ năng để luyện. Nếu kỹ năng đã thạo, có thể bắt đầu luyện từ màn thông tin kỹ năng. Bài cơ bản dùng đúng kỹ năng đó; màn thử thách chọn một kỹ năng đã mở có nó làm tiên quyết trực tiếp. Nếu không có kỹ năng phù hợp, tiếp tục dùng kỹ năng đã chọn.
 
-学年別とれんしゅうでは、条件を満たしたタイムカプセルが基本問題の1問を置き換える場合があります。この1問は、指定した学年・スキルの範囲外になることがあります。
+Trong chế độ Theo khối và Luyện tập, hộp thời gian đủ điều kiện có thể thay thế một câu cơ bản. Câu này đôi khi nằm ngoài khối hoặc kỹ năng đã chọn.
 
-### 3.4 ふくしゅう
+### 3.4 Ôn tập
 
-誤答を含む問題を最後まで解いた時点で、問題そのものを最大40問保存します。問題のタイトルと式を識別子にして重複を除きます。途中で中断した未完了問題は追加しません。
+Khi hoàn thành một bài có lỗi, bài đó được lưu nguyên dạng, tối đa 40 bài. Chữ ký gồm tiêu đề và biểu thức để loại trùng. Bài bị bỏ dở không được thêm.
 
-タイトルと結果のやりなおしボタンから開始できます。保存済み一覧の末尾から、設定した問題数と10の小さい方を上限に選びます。結果のボタンから始めても、その回の誤答だけに限定せず、以前から残っている一覧を使います。
+Có thể bắt đầu từ nút Ôn tập ở trang chính hoặc màn kết quả. Hệ thống lấy từ cuối danh sách đã lưu, tối đa bằng số câu đã chọn hoặc 10, tùy giá trị nhỏ hơn. Bắt đầu từ màn kết quả không giới hạn ở các lỗi của lượt hiện tại mà dùng toàn bộ danh sách còn lưu.
 
-初回正解で解き直した問題は一覧から削除し、再度誤答した問題は残します。全問を解けば100点になり、エクストラはありません。通常の成長記録・習熟・クエストにも反映します。
+Bài giải đúng ngay lần đầu khi ôn tập sẽ bị xóa khỏi danh sách; nếu lại trả lời sai thì vẫn giữ. Hoàn thành toàn bộ được 100 điểm và không có màn thử thách. Lượt ôn vẫn tính vào tiến bộ, thành thạo và nhiệm vụ thông thường.
 
-### 3.5 デモプレイ
+### 3.5 Chơi thử tự động
 
-設定の「自動でプレイを見る」で自動操作を開始します。全スキルから選んだ問題を易しい順に並べ、エクストラは4年生以上のスキルから選びます。通常の入力・判定・演出を使い、誤答も入れます。基本で誤答する問題数の上限は `floor(問題数 × 0.2)` です。
+Trong Cài đặt, “Xem chơi thử tự động” bắt đầu thao tác tự động. Bài được chọn từ toàn bộ kỹ năng và sắp từ dễ đến khó; màn thử thách chọn kỹ năng lớp 4 trở lên. Hệ thống dùng cùng luồng nhập, chấm và hiệu ứng như chơi thật, kể cả lỗi. Số bài cơ bản có thể sai tối đa là `floor(số câu × 0.2)`.
 
-基本、エクストラ、最終結果を1周したらタイトルへ戻り、デモを解除します。タップ・キー操作でも終了できます。開始直後のタップには600msの無視時間があります。デモのプレイ結果を履歴・習熟・ふくしゅう・成長統計に加算せず、クエストやトロフィーの獲得も進めません。タイトルに戻った後の通常のログイン処理は行います。
+Sau một vòng cơ bản, màn thử thách và kết quả cuối, ứng dụng về trang chính và tắt chơi thử. Chạm hoặc nhấn phím cũng kết thúc. Trong 600ms đầu sau khi bắt đầu, thao tác chạm bị bỏ qua. Kết quả chơi thử không được thêm vào lịch sử, tiến độ thạo, ôn tập hoặc thống kê tiến bộ; nhiệm vụ và cúp cũng không tăng. Sau khi về trang chính, quy trình đăng nhập thông thường vẫn chạy.
 
-固定した演出はデモでも使用し、おまかせのカテゴリだけを解放済みから選びます。URLの `?demo` はこの自動操作とは別の機能です。
+Các hiệu ứng cố định vẫn dùng trong chơi thử; chỉ danh mục ngẫu nhiên mới chọn từ các món đã mở. URL `?demo` là chức năng khác với chế độ tự động này.
 
-## 4. 1回のプレイと入力
+## 4. Một lượt chơi và nhập đáp án
 
-### 4.1 基本問題とエクストラ
+### 4.1 Bài cơ bản và màn thử thách
 
-問題数は6・10・14問、初期値は10問です。基本の目標時間は `ceil(問題数 × 18 ÷ 10) × 10` 秒で、6問は110秒、10問は180秒、14問は260秒です。超過しても続行でき、減点しません。基本の経過時間はプレイ開始から完走までで、問題の切り替えも含みます。
+Số câu là 6, 10 hoặc 14, mặc định 10. Thời gian mục tiêu của phần cơ bản là `ceil(số câu × 18 ÷ 10) × 10` giây: 6 câu là 110 giây, 10 câu là 180 giây, 14 câu là 260 giây. Quá thời gian vẫn được tiếp tục và không bị trừ điểm. Thời gian cơ bản tính từ lúc bắt đầu đến khi hoàn thành, bao gồm cả chuyển bài.
 
-「正解」は最終解まで完了した問題数、「おしい」は受理した数字が現在のマスに対して誤りだった回数です。「初回正解」は途中入力も含めて一度も誤答せずに完了した問題です。基本の初回正解数を問題数で割った割合が0.8以上なら、エクストラを選べます。
+“Đúng” là số bài hoàn thành đến đáp án cuối; “Suýt đúng” là số lần chữ số được nhận nhưng sai với ô hiện tại. “Đúng ngay lần đầu” là bài hoàn thành mà không sai lần nào, kể cả bước trung gian. Nếu số bài cơ bản đúng ngay lần đầu chia cho số câu từ 0,8 trở lên, người chơi được chọn màn thử thách.
 
-エクストラは既定90秒です。開始処理の時刻に90,000msと導入用900msを加えて期限を設定します。最初の入力可能時刻から90秒を保証する方式ではなく、問題の切り替え中も時計が進みます。確認ダイアログの間は停止します。時間切れで得点を確定し、最終結果へ進みます。未完了問題に得点は付きませんが、受理済みの正解マスで増えたドパは残ります。
+Màn thử thách mặc định kéo dài 90 giây. Hạn được đặt bằng thời điểm bắt đầu cộng 90.000ms và 900ms chuyển cảnh. Đây không phải cơ chế bảo đảm 90 giây kể từ lần nhập đầu; đồng hồ vẫn chạy khi chuyển bài. Đồng hồ dừng trong hộp xác nhận. Khi hết thời gian, điểm được chốt và chuyển sang kết quả cuối. Bài chưa hoàn thành không được cộng điểm, nhưng Dopa từ các ô đúng đã nhận vẫn giữ lại.
 
-### 4.2 数字の入力
+### 4.2 Nhập chữ số
 
-専用テンキーとPCの数字キーで1桁ずつ入力し、その場で判定します。回答確定ボタンはありません。正しい桁は保持され、誤った数字は次の入力で置き換えます。Backspaceは現在の誤った数字を消す操作で、正解済みの桁は取り消しません。
+Bàn phím số riêng và phím số trên máy tính nhập từng chữ số, chấm ngay tại chỗ. Không có nút xác nhận. Chữ số đúng được giữ; chữ số sai sẽ bị thay thế ở lần nhập tiếp theo. Backspace xóa chữ số sai hiện tại, không xóa chữ số đã đúng.
 
-スマートフォンではブラウザの操作バーを含めた表示領域に合わせ、問題の余白とテンキーの高さを調整します。0と削除を含む最下段を下端の安全領域より上に配置し、画面サイズが変わったときは問題の文字サイズも再計算します。
+Trên điện thoại, ứng dụng tính theo vùng hiển thị gồm cả thanh điều khiển trình duyệt và điều chỉnh khoảng trống bài toán cùng chiều cao bàn phím. Hàng cuối có 0 và xóa nằm trên vùng an toàn bên dưới. Khi kích thước màn hình đổi, cỡ chữ bài toán được tính lại.
 
-| 問題の形式 | 入力順と自動表示 |
+| Dạng bài | Thứ tự nhập và hiển thị tự động |
 | --- | --- |
-| 横書きの式 | 答えの左の桁から入力 |
-| 横書きの余り付き除法 | 商、余りの順 |
-| 加減の筆算 | 一番下の位から。くり上がり・くり下がりの補助数字を自動表示 |
-| 乗法の筆算 | 部分積を右から入力し、複数の部分積がある場合は合計も右から入力 |
-| 除法の筆算 | 商の上の位、引いた残り、次の商の順。積・下ろす数字・最後の余り0は自動表示 |
-| 小数 | 小数点を自動表示し、数字だけ入力 |
-| 分数 | 分母、分子の順。帯分数は整数部分、分母、分子の順 |
-| 比・文字式・概数・百分率 | 指定された空欄の左の桁から入力 |
+| Biểu thức ngang | Nhập từ chữ số bên trái của đáp án |
+| Phép chia ngang có dư | Thương, rồi số dư |
+| Cộng/trừ dọc | Từ hàng thấp nhất; chữ số nhớ/mượn phụ trợ tự động hiện |
+| Nhân dọc | Nhập tích riêng từ phải sang trái; nếu có nhiều tích riêng, nhập tổng cũng từ phải sang trái |
+| Chia dọc | Chữ số đầu của thương, phần còn lại sau phép trừ, thương tiếp theo; tích, chữ số hạ xuống và số dư 0 cuối cùng tự động hiện |
+| Số thập phân | Dấu thập phân tự động hiện, chỉ nhập chữ số |
+| Phân số | Mẫu, tử; hỗn số theo thứ tự phần nguyên, mẫu, tử |
+| Tỉ số, biểu thức có x, số gần đúng, phần trăm | Nhập từ chữ số bên trái của ô trống được chỉ định |
 
-分数は用意された回答形式で判定します。3年生の同分母分数は元の分母を保ち、約分しない答えを受け付けます。その他の分数計算は生成された既約分数・帯分数の形式を使います。等価な別表現を自由入力して判定する方式ではありません。
+Phân số được chấm theo dạng đáp án đã chuẩn bị. Phân số cùng mẫu lớp 3 giữ mẫu ban đầu và không rút gọn. Các phép tính phân số khác dùng dạng phân số tối giản hoặc hỗn số do bộ sinh tạo ra. Đây không phải cách chấm chấp nhận mọi dạng biểu diễn tương đương.
 
-### 4.3 誤答と手がかり
+### 4.3 Trả lời sai và gợi ý
 
-誤った数字には紫の点線の枠を使います。同じマスで2回誤答すると、参照すべき数字が定義されている場合は強調・指さしを行います。3回目以降は計算の途中式や九九の列などの手がかりを表示します。手がかりには答えに相当する値が含まれる場合があります。
+Ô sai dùng khung chấm màu tím. Nếu sai hai lần ở cùng ô, các chữ số cần tham chiếu sẽ được nhấn mạnh và Dopakichi chỉ vào đó. Từ lần sai thứ ba, gợi ý như bước tính trung gian hoặc dãy bảng nhân được hiển thị. Gợi ý có thể chứa giá trị tương đương đáp án.
 
-誤答でコンボは0になりますが、得点・ドパを減らさず、演出段階とBGMを維持します。誤答音のためにBGMを一時的に絞り、弾む効果音とドパキチの復帰する演技を使います。
+Trả lời sai đặt combo về 0 nhưng không giảm điểm hay Dopa; cấp độ hiệu ứng và nhạc nền vẫn giữ. Âm lượng nhạc nền tạm giảm để phát âm báo sai, sau đó Dopakichi thể hiện cảnh khôi phục.
 
-## 5. 得点・ドパ・コンボ
+## 5. Điểm, Dopa và combo
 
-### 5.1 得点
+### 5.1 Điểm
 
-基本完走で100点です。エクストラの完了問題を0始まりで `k` とすると、その問題の加点は `10 + 5 × k` 点です。エクストラを `n` 問完了した合計得点は次式です。
+Hoàn thành phần cơ bản được 100 điểm. Nếu bài thử thách hoàn thành có chỉ số bắt đầu từ 0 là `k`, điểm cộng là `10 + 5 × k`. Tổng điểm khi hoàn thành `n` bài thử thách là:
 
 ```text
 100 + 10 × n + 5 × n × (n − 1) ÷ 2
 ```
 
-5問で200点、10問で425点、15問で775点、23問で1595点、30問で2575点です。得点の固定上限はありません。コンボ・解答速度・おしいの回数による得点倍率や減点はありません。
+5 bài được 200 điểm, 10 bài được 425 điểm, 15 bài được 775 điểm, 23 bài được 1595 điểm, 30 bài được 2575 điểm. Không có trần điểm cố định. Combo, tốc độ và số lần suýt đúng không nhân hoặc trừ điểm.
 
-### 5.2 ドパの計算
+### 5.2 Cách tính Dopa
 
-ドパは演出の数値で、得点とは別です。内部値 `L` を常用対数として持ち、表示値の元は `10^L` です。プレイ開始時は `L = 0` です。
+Dopa là chỉ số của hiệu ứng, tách biệt với điểm. Giá trị nội bộ `L` là logarit cơ số 10; giá trị hiển thị bắt nguồn từ `10^L`. Khi bắt đầu lượt chơi, `L = 0`.
 
-基本の基準曲線を `B(f) = 2.3 × clamp(f, 0, 1)^1.15`、エクストラの基準曲線を `X(n) = 2.3 + 3.0 × (1 − exp(−n / 10))` とします。
+Đường cơ bản của phần cơ bản là `B(f) = 2.3 × clamp(f, 0, 1)^1.15`; đường của màn thử thách là `X(n) = 2.3 + 3.0 × (1 − exp(−n / 10))`.
 
-基本の総問題数を `N`、完了済み問題数を0始まりの `q`、現在の問題の回答マス数を `m`、今回正解したマスを1始まりの `s` とすると、その入力の基準増分は `B((q + s/m)/N) − B((q + (s−1)/m)/N)` です。エクストラの完了済み問題数を `k` とすると、1マスの基準増分は `(X(k+1) − X(k))/m` です。
+Gọi tổng số bài cơ bản là `N`, bài hiện tại bắt đầu từ 0 là `q`, số ô của bài là `m`, ô vừa trả lời đúng bắt đầu từ 1 là `s`, thì lượng tăng cơ bản là `B((q + s/m)/N) − B((q + (s−1)/m)/N)`. Với màn thử thách, nếu đã hoàn thành `k` bài thì lượng tăng cơ bản cho mỗi ô là `(X(k+1) − X(k))/m`.
 
-正解時は先にコンボ数 `c` を1増やし、その入力を次式で反映します。
+Khi đúng, combo `c` tăng trước rồi lượng tăng được áp dụng:
 
 ```text
-倍率 M(c) = 1 + (2 − 1) × min(1, max(0, c) / 20)
-新しい L = min(9.08, L + max(0.003, 基準増分) × M(c))
+Hệ số M(c) = 1 + (2 − 1) × min(1, max(0, c) / 20)
+L mới = min(9.08, L + max(0.003, lượng tăng cơ bản) × M(c))
 ```
 
-10コンボで1.5倍、20コンボ以上で2倍です。上限は対数値9.08、元の表示値では正確に `10^9.08` です。増分に最低値0.003があるため、基準曲線の終点だけから実際の到達値は決まりません。最初の正解も1コンボ・1.05倍で、エクストラ開始時はコンボを0へ戻してドパを引き継ぎます。
+10 combo tương đương hệ số 1,5; từ 20 combo là 2. Trần logarit là 9,08, tương đương chính xác `10^9.08` khi hiển thị. Vì lượng tăng tối thiểu là 0,003, giá trị đạt thực tế không chỉ phụ thuộc điểm cuối của đường cong. Câu đúng đầu tiên đã là combo 1 và hệ số 1,05; khi vào màn thử thách, combo về 0 nhưng Dopa được giữ.
 
-表示は1万未満を整数に丸め、以降は「万」「億」などを付けます。単位内の値が10未満なら小数第1位まで、10以上なら切り捨てた整数を表示します。100、1000、1万、10万、100万、1000万、1億への到達には節目の演出があります。通常プレイの上限では兆以上には到達しません。
+Giá trị dưới 10.000 được làm tròn thành số nguyên; từ đó dùng các đơn vị “vạn”, “trăm triệu” và “nghìn tỷ”. Nếu phần giá trị trong một đơn vị nhỏ hơn 10, hiển thị một chữ số thập phân; từ 10 trở lên cắt phần thập phân. Các mốc 100, 1.000, 10.000, 100.000, 1.000.000, 10.000.000 và 100.000.000 có hiệu ứng riêng. Trong lượt chơi thông thường, Dopa không đạt đến hàng nghìn tỷ.
 
-### 5.3 コンボの時間と表示
+### 5.3 Thời gian và hiển thị combo
 
-正しい回答マスごとに1コンボを加算し、問題をまたいで持ち越します。2コンボ以上で表示し、20コンボ以上は「ドパ×2 MAX」と表示します。誤答または時間切れで0に戻ります。ただし、現在の実装では1コンボの状態は時間切れ判定の対象外です。
+Mỗi ô đúng cộng 1 combo và combo kéo dài qua các bài. Combo từ 2 trở lên mới hiển thị; từ 20 trở lên hiển thị “Dopa ×2 TỐI ĐA”. Trả lời sai hoặc hết giờ đưa combo về 0. Tuy nhiên trong triển khai hiện tại, trạng thái combo 1 không bị xét hết giờ.
 
-学年 `g` の通常マスの時間は `3000 + 600 × (g − 1)` ms、問題の最初のマスには2500msを加えます。学年は1〜6に収め、不明な場合は3として扱います。
+Thời gian của một ô thường ở khối `g` là `3000 + 600 × (g − 1)` ms; ô đầu tiên của bài được cộng thêm 2500ms. Khối được giới hạn từ 1–6, giá trị không hợp lệ dùng khối 3.
 
-| 学年 | 通常マス | 問題の最初のマス |
-| --- | --- | --- |
+| Khối | Ô thường | Ô đầu tiên của bài |
+| --- | ---: | ---: |
 | 1 | 3000ms | 5500ms |
 | 2 | 3600ms | 6100ms |
 | 3 | 4200ms | 6700ms |
@@ -156,287 +156,284 @@
 | 5 | 5400ms | 7900ms |
 | 6 | 6000ms | 8500ms |
 
-入力を受け付ける時点で期限を設定し、問題切り替えと確認ダイアログでは消費しません。残り時間のバーは30%未満で強調します。10・20・30・50・75コンボ、100以上は50コンボごとに大きく祝います。5コンボ以上が途切れた場合は終了した数を短く表示します。
+Hạn được đặt khi bắt đầu nhận nhập liệu; thời gian chuyển bài và hộp xác nhận không bị tính. Thanh thời gian nhấn mạnh khi còn dưới 30%. Combo 10, 20, 30, 50, 75 và từ 100 trở lên theo mỗi 50 được chúc mừng lớn. Khi combo từ 5 trở lên bị ngắt, số combo đã đạt được hiển thị ngắn gọn.
 
-## 6. 出題範囲とスキルツリー
+## 6. Phạm vi bài và cây kỹ năng
 
-### 6.1 範囲と生成
+### 6.1 Phạm vi và tạo bài
 
-計算を58スキルに分けています。学年別では1年8、2年13、3年14、4年10、5年8、6年5です。系統は「たし・ひき」「かけ・わり」「小数・分数」「そのほか」の4つです。全スキルの名前・識別子・前提・生成条件は `docs/curriculum.md` にまとめています。
+Có 58 kỹ năng. Theo khối gồm lớp 1: 8, lớp 2: 13, lớp 3: 14, lớp 4: 10, lớp 5: 8, lớp 6: 5. Bốn nhóm là “Cộng & trừ”, “Nhân & chia”, “Số thập phân & phân số” và “Khác”. Tên, ID, tiên quyết và điều kiện tạo của toàn bộ kỹ năng nằm trong `docs/curriculum.md`.
 
-四則計算、途中入力を伴う筆算、小数、分数、概数、約数・倍数、計算順序、百分率、等しい比、文字の値を対象にします。図形、測定、グラフ、文章題、漢数字入力は出題しません。
+Nội dung gồm bốn phép tính, phép tính dọc có nhập từng bước, số thập phân, phân số, số gần đúng, ước/bội, thứ tự tính, phần trăm, tỉ số bằng nhau và giá trị của ẩn. Không tạo bài hình học, đo lường, biểu đồ, bài toán có lời văn hoặc nhập chữ số Hán.
 
-スキルの条件から毎回乱数で生成します。直近24問の署名と、そのプレイ内の出題済み署名を使って重複を避けます。候補生成には再試行上限があるため、候補の少ないスキルなどで重複する場合があります。タイムカプセルとふくしゅうは同じ問題を再現するための例外です。
+Bài được tạo ngẫu nhiên từ điều kiện của kỹ năng. Chữ ký của 24 bài gần nhất và chữ ký đã dùng trong lượt hiện tại được dùng để tránh lặp. Do có giới hạn số lần thử, kỹ năng ít ứng viên đôi khi vẫn lặp. Hộp thời gian và Ôn tập cố ý dùng lại bài đã lưu.
 
-### 6.2 表示と解放
+### 6.2 Hiển thị và mở khóa
 
-各系統を2列に分けた8列で表示し、狭い画面では縦横にスクロールします。学年順を優先して並べ、5・6年生は1〜4年生より下に置きます。前提関係の線は他のノードを避けて迂回し、同じ列に並ぶだけでは依存関係を意味しません。
+Mỗi nhóm chia thành hai cột, tổng cộng tám cột; màn hình hẹp có thể cuộn ngang dọc. Thứ tự khối được ưu tiên, lớp 5–6 nằm dưới lớp 1–4. Đường tiên quyết vòng tránh các nút khác; chỉ nằm cùng cột không có nghĩa là phụ thuộc.
 
-前提がないスキルは最初から解放し、前提が複数あればすべてのマスターが必要です。状態はロック、NEW、練習中、マスターを区別します。通常のマスター条件は、少なくとも6問の履歴があり、直近6問中5問以上を初回正解することです。一度マスターしたスキルは誤答しても戻りません。実力チェックの一括付与はこの回数条件の例外です。
+Kỹ năng không có tiên quyết được mở từ đầu; kỹ năng có nhiều tiên quyết cần tất cả đều thạo. Trạng thái gồm khóa, mới, đang học và thạo. Điều kiện thạo thông thường cần ít nhất 6 bài lịch sử và ít nhất 5/6 bài gần nhất đúng ngay lần đầu. Kỹ năng đã thạo không quay lại trạng thái khóa vì trả lời sai. Việc cấp hàng loạt trong kiểm tra năng lực là ngoại lệ số lượng này.
 
-### 6.3 スキルの星
+### 6.3 Sao kỹ năng
 
-マスター後は☆1〜☆5を順に獲得します。1段階ずつ条件を満たす必要があり、満たしていれば同じ判定で複数段階上がります。合計の最大は290です。
+Sau khi thạo, người chơi lần lượt nhận ☆1–☆5. Cần đạt điều kiện từng cấp; nếu một kết quả thỏa nhiều cấp, sao có thể tăng nhiều bước. Tổng tối đa là 290.
 
-速さの判定には、問題ごとの回答時間を基準時間で割った比率を使います。基準時間は `最初のマスのコンボ時間 + max(0, 回答マス数 − 1) × 通常マスのコンボ時間` です。対象の初回正解問題だけから比率の中央値を求めます。
+Đánh giá tốc độ dùng tỉ lệ thời gian trả lời của từng bài so với thời gian chuẩn. Thời gian chuẩn là `thời gian combo của ô đầu + max(0, số ô − 1) × thời gian combo ô thường`. Chỉ các bài đúng ngay lần đầu được dùng để tính trung vị.
 
-| 星 | 条件 |
+| Sao | Điều kiện |
 | --- | --- |
-| ☆1 | マスター済み |
-| ☆2 | 直近20問がそろい、初回正解率0.9以上 |
-| ☆3 | 直近10問がそろい、そのうち5問以上が初回正解で、時間比率の中央値が1以下 |
-| ☆4 | 直近3問がすべて初回正解で、各問題の日付が☆3獲得日から7日以上後 |
-| ☆5 | 直近20問がそろい、初回正解率0.95以上、時間比率の中央値が0.6以下 |
+| ☆1 | Đã thạo |
+| ☆2 | Có đủ 20 bài gần nhất, tỷ lệ đúng ngay lần đầu từ 0,9 |
+| ☆3 | Có đủ 10 bài gần nhất, ít nhất 5 bài đúng ngay lần đầu, trung vị tỉ lệ thời gian không quá 1 |
+| ☆4 | 3 bài gần nhất đều đúng ngay lần đầu và ngày của từng bài cách ngày nhận ☆3 ít nhất 7 ngày |
+| ☆5 | Có đủ 20 bài gần nhất, tỷ lệ đúng ngay lần đầu từ 0,95, trung vị tỉ lệ thời gian không quá 0,6 |
 
-☆4の3問は同じ日に限りません。星は通常のプレイや休みでは減らず、スキルの記録削除と全リセットでは消えます。説明画面には次の星の条件、現在の値、解いた問題数、最短の解答時間を表示します。
+Ba bài của ☆4 không cần cùng ngày. Sao không giảm vì chơi hoặc nghỉ; xóa thành tích kỹ năng và xóa toàn bộ sẽ xóa sao. Màn thông tin hiển thị điều kiện sao tiếp theo, giá trị hiện tại, số bài đã giải và thời gian nhanh nhất.
 
-### 6.4 さびつき
+### 6.4 Kỹ năng nguội
 
-マスター済みで最後の初回正解から `21 × 86400000` ms以上経過したスキルを候補にし、古い順に最大3つへ「さび」を表示します。初回正解日時がなければ、実力チェックの付与日時、マスター日時の順に参照します。
+Kỹ năng thạo mà đã quá `21 × 86400000` ms kể từ lần đúng ngay lần đầu cuối cùng được đưa vào danh sách; tối đa 3 kỹ năng cũ nhất hiển thị trạng thái nguội. Nếu không có thời điểm đúng ngay lần đầu, hệ thống lần lượt dùng thời điểm được cấp trong kiểm tra năng lực và thời điểm thạo.
 
-さびたスキルを1問初回正解すると磨かれ、星を保持したまま印が消えます。磨いたことで、別の古いスキルが表示対象になる場合があります。じぶんレベルの復習と、磨くクエストに利用します。
+Trả lời đúng ngay lần đầu một bài của kỹ năng nguội sẽ làm nóng lại kỹ năng, giữ nguyên sao và xóa dấu nguội. Việc này có thể khiến một kỹ năng cũ khác xuất hiện. Kỹ năng nguội được dùng trong ôn tập của Trình độ của mình và nhiệm vụ làm nóng.
 
-### 6.5 スキルの記録削除
+### 6.5 Xóa thành tích kỹ năng
 
-記録のあるスキルを600ms長押しするか、フォーカスしてDeleteを押すと確認を開きます。押した位置から10pxを超えて動いた場合は長押し操作を中止します。
+Giữ một nút kỹ năng 600ms hoặc đưa tiêu điểm vào nút rồi nhấn Delete để mở xác nhận. Nếu con trỏ di chuyển hơn 10px, thao tác giữ sẽ bị hủy.
 
-確定すると、そのスキルと、それに直接・間接に依存するスキルの記録・星を削除します。選んだスキルは前提が残っていればNEW、前提がそろわなければロックへ戻ります。履歴、ふくしゅう、累計統計、トロフィー、コレクション、実力チェック済みの状態は保持します。
+Khi xác nhận, thành tích và sao của kỹ năng đó cùng mọi kỹ năng phụ thuộc trực tiếp hoặc gián tiếp bị xóa. Kỹ năng được chọn trở lại trạng thái Mới nếu các tiên quyết vẫn đủ; nếu không thì trở lại trạng thái khóa. Lịch sử, Ôn tập, thống kê tích lũy, cúp, bộ sưu tập và trạng thái đã kiểm tra năng lực vẫn giữ nguyên.
 
-## 7. 続ける仕組み
+## 7. Các cơ chế khuyến khích tiếp tục
 
-### 7.1 履歴・カレンダー・ログインボーナス
+### 7.1 Lịch sử, lịch và thưởng đăng nhập
 
-基本結果で履歴を保存し、エクストラ終了後に同じ履歴の得点・追加正解数・おしい・ドパを更新します。最大3000件を保持します。カレンダーは各日の最高得点とプレイ回数を表示し、日付から詳細を開けます。過去の月へ移動でき、未来の月には進みません。
+Lịch sử được lưu ở kết quả cơ bản; sau khi màn thử thách kết thúc, điểm, số câu thử thách đúng, số lần suýt đúng và Dopa của cùng lượt được cập nhật. Tối đa 3.000 bản ghi được giữ. Lịch hiển thị điểm cao nhất và số lượt chơi mỗi ngày, mở chi tiết từ một ngày. Có thể chuyển về tháng trước nhưng không chuyển sang tháng tương lai.
 
-連続日数は今日、まだ遊んでいなければ昨日を起点に数えます。最長記録とログインシールの枚数も表示します。プレイ日とログイン日は別で、タイトルを開いただけではプレイした日にはなりません。
+Chuỗi ngày tính từ hôm nay, hoặc từ hôm qua nếu hôm nay chưa chơi. Lịch cũng hiển thị kỷ lục chuỗi và số nhãn đăng nhập. Ngày chơi và ngày mở ứng dụng là hai khái niệm khác nhau; chỉ mở trang chính không tính là đã chơi.
 
-ログインボーナスは端末の日付ごとに1回です。星、ハート、花、音符、クローバー、はなまる、王冠の7日周期でシールを受け取ります。ノーカンにしていない欠席日を挟むと周期を最初から数え直します。シールは表示を開く時点で取得済みとなり、閉じたり再読み込みしたりしても同日に重複して受け取りません。
+Thưởng đăng nhập nhận tối đa một lần mỗi ngày theo ngày của thiết bị. Chu kỳ 7 ngày lần lượt nhận sao, tim, hoa, nốt nhạc, cỏ bốn lá, dấu đúng và vương miện. Nếu có ngày nghỉ không được bỏ qua, chu kỳ bắt đầu lại. Nhãn được đánh dấu đã nhận khi thẻ mở; đóng hoặc tải lại không nhận trùng trong cùng ngày.
 
-### 7.2 ノーカンハンマー
+### 7.2 Búa bỏ qua
 
-1本で遊ばなかった1日をノーカンにし、プレイ・ログインの連続をつなぎます。その日をプレイ日数へ加えたり、休んだ日のシールを追加したりはしません。初期所持は1本、所持上限は3本です。
+Một búa biến một ngày không chơi thành ngày không tính, nối chuỗi chơi và đăng nhập. Ngày đó không được cộng vào số ngày chơi và không tạo thêm nhãn của ngày nghỉ. Ban đầu có 1 búa, tối đa 3 búa.
 
-最後に遊んだ日が直近7日以内にあり、昨日までの空いた日を所持数ですべて埋められ、2日以上の連続を守れるとき、タイトルで1日1回使用を提案します。拒否した日は再提案しません。使うとカレンダーへノーカンの判を押します。使用履歴は最大50件です。
+Nếu lần chơi cuối nằm trong 7 ngày gần đây, mọi ngày trống đến hôm qua có thể được lấp bằng số búa đang có và việc đó giữ được chuỗi ít nhất 2 ngày, trang chính đề xuất dùng búa một lần mỗi ngày. Ngày đã từ chối sẽ không được đề xuất lại. Khi dùng, lịch được đóng dấu Bỏ qua. Lịch sử dùng búa giữ tối đa 50 bản ghi.
 
-### 7.3 デイリークエスト
+### 7.3 Nhiệm vụ hằng ngày
 
-端末の日付と、その日に選ぶ時点の記録から、簡単なもの2つと手間のかかるもの1つを決めて保存します。同じ日は設定を変えても選び直しません。日付が変わった後の更新処理で新しい一覧に切り替えます。候補は固定11種と、さびつきに応じる1種です。
+Từ ngày của thiết bị và dữ liệu tại thời điểm chọn nhiệm vụ, hệ thống chọn hai nhiệm vụ đơn giản và một nhiệm vụ nhiều bước rồi lưu lại. Trong cùng ngày, đổi cài đặt không chọn lại. Khi ngày mới được xử lý, danh sách mới thay thế danh sách cũ. Có 11 ứng viên cố định và 1 ứng viên phụ thuộc kỹ năng nguội.
 
-| 枠 | 候補と達成条件 |
+| Ô | Ứng viên và điều kiện |
 | --- | --- |
-| 簡単 | 1回完走、5コンボ、初回正解5問、ふくしゅう1問、NEWのスキル1問 |
-| 手間のかかる | エクストラへ進む、エクストラ5問、20コンボ、2回完走、学年別で1回完走、NEWまたは練習中のスキル10問、指定スキルの初回正解3問 |
+| Đơn giản | Hoàn thành 1 lượt, combo 5, 5 câu đúng ngay lần đầu, ôn tập 1 câu, giải 1 câu kỹ năng Mới |
+| Nhiều bước | Vào màn thử thách, giải 5 câu thử thách, combo 20, hoàn thành 2 lượt, hoàn thành 1 lượt theo khối, giải 10 câu kỹ năng Mới hoặc Đang học, đúng ngay lần đầu 3 câu kỹ năng chỉ định |
 
-ふくしゅう・NEWの対象がない場合は該当候補を除きます。エクストラ関連は直近5履歴にエクストラの記録があること、20コンボは `問題数 × 平均回答マス数 >= 26`、練習中10問は実力チェック済みで未マスター候補があることが条件です。同じ指標のクエストを同日に重ねません。
+Nếu không có đối tượng Ôn tập hoặc Mới, ứng viên tương ứng bị loại. Nhiệm vụ màn thử thách cần có bản ghi thử thách trong 5 lịch sử gần nhất; combo 20 cần `số câu × số ô trả lời trung bình >= 26`; nhiệm vụ 10 câu Đang học cần đã kiểm tra năng lực và còn kỹ năng chưa thạo. Trong cùng ngày không xếp trùng cùng một chỉ số.
 
-所要時間の選別モデルは、1回を `(問題数 × 18 + エクストラを見込む場合90 + 30) / 60` 分とします。初回正解5問には `ceil(5 / (問題数 × 0.7))` 回、練習中10問には `ceil(10 / (問題数 × 0.6))` 回、20コンボには2回を見込みます。ふくしゅうは最大10問として計算し、モード間で共通に達成できる項目を重ねて、合計15分以内の組み合わせを選びます。これは見積もりであり、実際の所要時間を制限するものではありません。
+Mô hình ước tính thời gian là `(số câu × 18 + 90 nếu dự kiến có màn thử thách + 30) / 60` phút cho một lượt. Năm câu đúng ngay lần đầu cần `ceil(5 / (số câu × 0.7))` lượt; 10 câu Đang học cần `ceil(10 / (số câu × 0.6))` lượt; combo 20 cần 2 lượt. Ôn tập tính tối đa 10 câu. Hệ thống ghép các mục có thể hoàn thành chung giữa các chế độ và chọn tổ hợp trong 15 phút. Đây là ước tính, không phải giới hạn thời gian thực.
 
-磨く候補は、さびがある日に日付由来の乱数が0.5未満で、直近7日に提示した回数が2未満なら選択対象になります。タイトルから対象スキルの練習を開始でき、達成には同じスキルで3問の初回正解が必要です。さび自体が消える1問とは条件が異なります。
+Ứng viên làm nóng chỉ được chọn khi có kỹ năng nguội, số ngẫu nhiên theo ngày nhỏ hơn 0,5 và số lần đề xuất trong 7 ngày gần nhất dưới 2. Có thể bắt đầu luyện kỹ năng từ trang chính; để hoàn thành cần 3 câu đúng ngay lần đầu ở cùng kỹ năng. Điều này khác với điều kiện làm mất trạng thái nguội chỉ cần 1 câu.
 
-進捗はプレイ中に加算し、達成を画面上端で知らせます。ふくしゅうも共通の完走・初回正解・コンボ条件へ加算します。3つすべて達成するとその日1回だけハンマーを1本受け取り、カレンダーに印を付けます。所持上限なら演出のみで、報酬を後日へ持ち越しません。
+Tiến độ tăng trong lúc chơi và hoàn thành được thông báo ở đầu màn hình. Ôn tập cũng tính vào điều kiện hoàn thành, đúng ngay lần đầu và combo. Khi hoàn thành cả 3 nhiệm vụ, mỗi ngày nhận 1 búa và đánh dấu ngày trên lịch. Nếu đã đủ búa, chỉ phát hiệu ứng và không chuyển phần thưởng sang ngày sau.
 
-### 7.4 トロフィー
+### 7.4 Cúp
 
-12分類・39シリーズ・306種を定義しています。分類は、つづける、たくさん、スキル、せいちょう、エクストラ、コンボ、せいかく、ドパ、ふくしゅう、がくねん、コレクション、ひみつです。各シリーズの段階を達成すると獲得し、取得済みのものは保持します。
+Có 12 nhóm, 39 chuỗi và 306 cúp. Nhóm gồm Duy trì, Chăm chỉ, Kỹ năng, Tiến bộ, Thử thách, Combo, Chính xác, Dopa, Ôn tập, Theo khối, Bộ sưu tập và Bí mật. Khi đạt từng mốc trong chuỗi, cúp được nhận và giữ vĩnh viễn.
 
-獲得判定は結果・最終結果・タイトルなどで行い、プレイ中には獲得ダイアログを開きません。一度の通知は最大6件と残り件数です。既存の記録から初めて判定する場合は到達済みのものを一括で通知します。
+Cúp được xét ở kết quả, kết quả cuối, trang chính và một số thời điểm khác; không mở hộp thoại trong lúc đang chơi. Mỗi lần thông báo hiển thị tối đa 6 cúp và số còn lại. Nếu lần đầu xét từ dữ liệu cũ, các cúp đã đạt được thông báo theo nhóm yên lặng.
 
-一覧は「ぜんぶ／ゲットした／まだ」で絞り込み、シリーズを開いて全段階・獲得日・報酬を確認できます。「もうすぐ」は次の条件に近い12件を表示し、ひみつ・ドパ・単発条件は除きます。ランクは銅・銀・金・虹で、単独の段階は金、複数段階の最後は虹、ひみつは専用表示です。
+Danh sách có thể lọc tất cả, đã nhận hoặc chưa nhận; mở từng chuỗi để xem các mốc, ngày nhận và phần thưởng. “Sắp đạt” hiển thị 12 mục gần điều kiện nhất, bỏ qua cúp bí mật, Dopa và điều kiện đơn lẻ. Hạng gồm đồng, bạc, vàng và cầu vồng; mốc đơn là vàng, mốc cuối của chuỗi nhiều cấp là cầu vồng, cúp bí mật dùng hiển thị riêng.
 
-現在の通常プレイでは、学年別の完走回数を累計へ渡していないため「各学年で遊ぶ」の18種は進みません。また、ひみつの「14問を誤答なし」「エクストラ5問以上を誤答なし」「日曜日」の取得に必要な値も更新されません。これらは一覧の定義数に含まれます。ひみつの残りは1月1日、7日以上空けた再開、4つの通常モードの完走です。
+Trong triển khai hiện tại, số lượt hoàn thành theo khối chưa được đưa vào thống kê tích lũy nên 18 cúp “chơi theo từng khối” không tăng. Các giá trị cần cho cúp bí mật “14 câu không sai”, “ít nhất 5 câu thử thách không sai” và “Chủ nhật” cũng chưa được cập nhật. Chúng vẫn nằm trong số lượng định nghĩa. Các cúp bí mật còn lại là ngày 1/1, quay lại sau ít nhất 7 ngày nghỉ và hoàn thành bốn chế độ thông thường.
 
-累計プレイ時間は完走した基本の経過時間だけを加算し、エクストラの時間は含みません。トロフィーの「あそんだ時間」もこの値を使います。
+Tổng thời gian chơi chỉ cộng thời gian của phần cơ bản đã hoàn thành, không gồm màn thử thách. Cúp về “thời gian đã chơi” dùng giá trị này.
 
-各シリーズの閾値は次のとおりです。数値指標は閾値以上で達成します。学年・系統の完了とひみつは、それぞれ独立した条件です。
+Ngưỡng dưới đây đạt khi chỉ số bằng hoặc cao hơn; hoàn thành khối/nhóm và cúp bí mật là các điều kiện độc lập.
 
-| 分類・シリーズ | 閾値または独立条件 |
+| Nhóm · chuỗi | Ngưỡng hoặc điều kiện độc lập |
 | --- | --- |
-| つづける：れんぞくで あそぶ | 3、5、7、10、14、21、30、50、75、100、150、200、365 |
-| つづける：あそんだ日 | 1、3、5、7、10、15、20、30、40、50、75、100、150、200、300、365、500、730、1000 |
-| つづける：ログインシール | 1、7、14、30、50、100、200、365 |
-| つづける：おうかんシール | 1、3、5、10、20、52 |
-| たくさん：といた もんだい | 10、30、50、100、200、300、500、750、1000、1500、2000、3000、5000、7500、10000、20000、30000、50000、100000 |
-| たくさん：いれた すうじ | 100、500、1000、3000、5000、10000、30000、50000、100000、300000 |
-| たくさん：あそんだ回数 | 1、3、5、10、20、30、50、100、200、300、500、1000、2000 |
-| たくさん：あそんだ時間 | 10、30、60、120、300、600、1200、3000（分） |
-| スキル：スキル かいほう | 3、5、10、15、20、25、30、35、40、45、50、55、58 |
-| スキル：スキル マスター | 1、3、5、10、15、20、25、30、35、40、45、50、55、58 |
-| スキル：学年 ぜんぶ マスター | 1年生 ぜんぶ マスター、2年生 ぜんぶ マスター、3年生 ぜんぶ マスター、4年生 ぜんぶ マスター、5年生 ぜんぶ マスター、6年生 ぜんぶ マスター |
-| スキル：けいとう ぜんぶ マスター | たし・ひき マスター、かけ・わり マスター、小数・分数 マスター、そのほか マスター |
-| エクストラ：エクストラに いく | 1、3、5、10、20、30、50、100、200、300 |
-| エクストラ：エクストラ 1回の さいこう | 3、5、7、10、12、15、18、20、23、25、30 |
-| エクストラ：エクストラで といた | 10、30、50、100、200、300、500、1000、2000、3000 |
-| コンボ：コンボ | 5、10、15、20、30、40、50、75、100、150、200、300 |
-| せいかく：ノーミスで かんそう | 1、3、5、10、20、30、50、100、200、300 |
-| せいかく：初回正解 | 10、50、100、300、500、1000、3000、5000、10000、30000 |
-| ドパ：ドパ | 2、3、4、5、6、7、8、9（常用対数） |
-| ふくしゅう：ふくしゅう | 1、5、10、30、50、100、200、300 |
-| がくねん：1ねんせいで あそぶ | 1、10、30 |
-| がくねん：2ねんせいで あそぶ | 1、10、30 |
-| がくねん：3ねんせいで あそぶ | 1、10、30 |
-| がくねん：4ねんせいで あそぶ | 1、10、30 |
-| がくねん：5ねんせいで あそぶ | 1、10、30 |
-| がくねん：6ねんせいで あそぶ | 1、10、30 |
-| ひみつ：ひみつ | 14もん パーフェクト、エクストラ ノーミス、にちようびの さんすう、おしょうがつ ドリル、おかえり！、ぜんぶの あそびかた |
-| つづける：クエスト コンプリート | 1、3、7、14、30、50、100、200、365 |
-| つづける：クエスト れんぞく | 2、3、5、7、14、30 |
-| つづける：ノーカンハンマー | 1、3、10 |
-| スキル：ほしの かず | 5、10、25、50、75、100、150、200、250、290 |
-| スキル：☆5の スキル | 1、3、5、10、20、30、58 |
-| スキル：学年 ぜんぶ ☆3 | 1年生 ぜんぶ ☆3、2年生 ぜんぶ ☆3、3年生 ぜんぶ ☆3、4年生 ぜんぶ ☆3、5年生 ぜんぶ ☆3、6年生 ぜんぶ ☆3 |
-| せいちょう：さびを みがく | 1、3、5、10、30、50 |
-| せいちょう：タイムカプセル | 1、3、5、10、30 |
-| せいちょう：あの日より はやい | 1、5、10 |
-| せいちょう：のびたよ！ | 1、5、10、30、50、100 |
-| コレクション：コレクション | 10、20、30、40、47 |
-| コレクション：ぜんぶ そろえた | 1、3、5、8 |
+| Duy trì: chơi liên tiếp | 3, 5, 7, 10, 14, 21, 30, 50, 75, 100, 150, 200, 365 |
+| Duy trì: ngày đã chơi | 1, 3, 5, 7, 10, 15, 20, 30, 40, 50, 75, 100, 150, 200, 300, 365, 500, 730, 1000 |
+| Duy trì: nhãn đăng nhập | 1, 7, 14, 30, 50, 100, 200, 365 |
+| Duy trì: nhãn vương miện | 1, 3, 5, 10, 20, 52 |
+| Chăm chỉ: câu đã giải | 10, 30, 50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000, 7500, 10000, 20000, 30000, 50000, 100000 |
+| Chăm chỉ: chữ số đã nhập | 100, 500, 1000, 3000, 5000, 10000, 30000, 50000, 100000, 300000 |
+| Chăm chỉ: số lượt chơi | 1, 3, 5, 10, 20, 30, 50, 100, 200, 300, 500, 1000, 2000 |
+| Chăm chỉ: thời gian chơi | 10, 30, 60, 120, 300, 600, 1200, 3000 phút |
+| Kỹ năng: mở khóa kỹ năng | 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 58 |
+| Kỹ năng: thạo kỹ năng | 1, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 58 |
+| Kỹ năng: thạo toàn bộ khối | Thạo toàn bộ lớp 1, 2, 3, 4, 5 hoặc 6 |
+| Kỹ năng: thạo toàn bộ nhóm | Thạo Cộng & trừ, Nhân & chia, Số thập phân & phân số hoặc Khác |
+| Thử thách: vào màn thử thách | 1, 3, 5, 10, 20, 30, 50, 100, 200, 300 |
+| Thử thách: kỷ lục một lượt | 3, 5, 7, 10, 12, 15, 18, 20, 23, 25, 30 |
+| Thử thách: câu đã giải | 10, 30, 50, 100, 200, 300, 500, 1000, 2000, 3000 |
+| Combo: combo cao nhất | 5, 10, 15, 20, 30, 40, 50, 75, 100, 150, 200, 300 |
+| Chính xác: lượt không sai | 1, 3, 5, 10, 20, 30, 50, 100, 200, 300 |
+| Chính xác: đúng ngay lần đầu | 10, 50, 100, 300, 500, 1000, 3000, 5000, 10000, 30000 |
+| Dopa: Dopa | 2, 3, 4, 5, 6, 7, 8, 9 theo logarit cơ số 10 |
+| Ôn tập: ôn tập | 1, 5, 10, 30, 50, 100, 200, 300 |
+| Theo khối: chơi lớp 1–6 | Mỗi khối: 1, 10, 30 |
+| Bí mật | 14 câu hoàn hảo, màn thử thách không sai, toán Chủ nhật, bài đầu năm, Chào mừng trở lại, đủ mọi cách chơi |
+| Duy trì: hoàn thành nhiệm vụ | 1, 3, 7, 14, 30, 50, 100, 200, 365 |
+| Duy trì: chuỗi nhiệm vụ | 2, 3, 5, 7, 14, 30 |
+| Duy trì: búa bỏ qua | 1, 3, 10 |
+| Kỹ năng: tổng số sao | 5, 10, 25, 50, 75, 100, 150, 200, 250, 290 |
+| Kỹ năng: kỹ năng ☆5 | 1, 3, 5, 10, 20, 30, 58 |
+| Kỹ năng: toàn khối ☆3 | Mỗi khối 1–6 đều đạt ☆3 |
+| Tiến bộ: làm nóng kỹ năng nguội | 1, 3, 5, 10, 30, 50 |
+| Tiến bộ: hộp thời gian | 1, 3, 5, 10, 30 |
+| Tiến bộ: nhanh hơn trước | 1, 5, 10 |
+| Tiến bộ: bạn đã tiến bộ | 1, 5, 10, 30, 50, 100 |
+| Bộ sưu tập: món đã nhận | 10, 20, 30, 40, 47 |
+| Bộ sưu tập: hoàn thành danh mục | 1, 3, 5, 8 |
 
-### 7.5 前回とくらべる
+### 7.5 So sánh với lần trước
 
-基本結果で、同じスキルの以前の記録より伸びた点を「のびたよ！」として最大3行表示します。今回と比較相手の双方に3問以上が必要です。比較相手は、前回遊んだ日、21日以上前の直近の日、最初に解いた3問です。同日内の過去の回だけを比較相手にはしません。
+Ở kết quả cơ bản, tối đa 3 dòng hiển thị các kỹ năng tiến bộ so với bản ghi trước với tiêu đề “Bạn tiến bộ!”. Cả lượt hiện tại và lượt dùng để so sánh phải có ít nhất 3 câu. Lượt so sánh là ngày chơi trước, lượt gần nhất cách ít nhất 21 ngày, hoặc 3 câu đầu tiên từng giải. Các lượt cũ hơn trong cùng ngày không được chọn.
 
-解答時間は回答マスあたりの平均で比較し、表示は今回の平均マス数に換算した1問あたりの秒数です。時間が10%以上短縮、または初回正解率が10ポイント以上改善した項目を候補にします。各スキルで最も大きい改善を1つ選び、全体で改善の大きい順に表示します。改善がなければ表示しません。実力チェック・デモ・成長記録を停止する確認用URLは対象外です。
+Thời gian được so sánh theo trung bình mỗi ô; màn hình quy đổi thành số giây mỗi bài với số ô trung bình của lượt hiện tại. Mục đủ điều kiện nếu nhanh hơn ít nhất 10% hoặc tỷ lệ đúng ngay lần đầu tăng ít nhất 10 điểm phần trăm. Mỗi kỹ năng chọn một cải thiện lớn nhất, rồi sắp toàn bộ theo mức cải thiện. Nếu không có cải thiện thì không hiển thị. Kiểm tra năng lực, chơi thử và các URL kiểm tra tắt ghi nhận tiến bộ đều bị loại.
 
-### 7.6 タイムカプセル
+### 7.6 Hộp thời gian
 
-スキルごとに保存した最初の3問から、マスター済みで、解いた時点から `30 × 86400000` ms以上経過した未使用問題のうち最も古いものを選びます。
+Từ 3 bài đầu được lưu của mỗi kỹ năng, chọn bài cũ nhất chưa dùng, thuộc kỹ năng đã thạo và đã quá `30 × 86400000` ms kể từ lúc giải.
 
-通常のじぶんレベル、学年別、れんしゅうの基本セットが4問以上の場合、0始まりの `max(1, min(N−2, floor(N/2)))` 番目を置き換えます。実力チェック、ふくしゅう、エクストラ、デモ、成長記録を停止する確認用URLは対象外です。1日に1問までで、予告を終えた時点の日付を保存するため、それ以後に中断しても同日の再提示はしません。問題を完了した時点で使用済みになります。
+Nếu bộ cơ bản của Trình độ của mình, Theo khối hoặc Luyện tập có ít nhất 4 câu, thay thế vị trí bắt đầu từ 0 là `max(1, min(N−2, floor(N/2)))`. Kiểm tra năng lực, Ôn tập, màn thử thách, chơi thử và URL tắt ghi nhận tiến bộ không dùng hộp thời gian. Mỗi ngày tối đa một bài. Ngày được lưu khi phần giới thiệu kết thúc, nên dù sau đó bỏ dở thì cùng ngày không giới thiệu lại. Bài được đánh dấu đã dùng khi hoàn thành.
 
-封筒の予告とオレンジの縁で過去の問題と分かるようにします。比較は今回の時間が過去の0.95倍未満なら時間短縮、そうでなければ誤答回数の減少、どちらもなければ再び解けたことと日付を表示します。5%ちょうどの短縮では時間短縮の表示になりません。
+Phong bì và viền cam cho biết đây là bài cũ. Nếu thời gian hiện tại nhỏ hơn 0,95 lần thời gian cũ thì hiển thị đã nhanh hơn; nếu không, so sánh số lần sai; nếu cả hai không đổi thì hiển thị đã giải lại và ngày. Đúng 5% nhanh hơn không được tính là cải thiện thời gian.
 
-### 7.7 コレクションと演出の解放
+### 7.7 Bộ sưu tập và mở khóa hiệu ứng
 
-8カテゴリ・47種です。各カテゴリに初期状態で使えるものが1つあり、残り39種は決められたトロフィーの報酬です。未解放のものには取得条件を表示します。
+Có 8 danh mục và 47 món. Mỗi danh mục có 1 món dùng ngay từ đầu; 39 món còn lại là phần thưởng của cúp. Món chưa mở hiển thị điều kiện nhận.
 
-| カテゴリ | 種類と解放条件（初期以外はトロフィー名） |
+| Danh mục | Món và điều kiện mở khóa (trừ món ban đầu là tên cúp) |
 | --- | --- |
-| はいけい（6種） | ほうしゃせん（初期）、よぞら（3日 れんぞく）、うみと あわ（100もん とく）、おまつり（あそんだ日 15日）、かみの こうさく（200もん とく）、うちゅう（エクストラ 10回） |
-| せいかいの しるし（5種） | はなまる（初期）、せいかいスタンプ（3回 あそぶ）、メダル（7日 れんぞく）、おうかん（ノーミス 3回）、はなびの わ（30コンボ） |
-| かみふぶき（6種） | かみふぶき（初期）、おんぷ（あそんだ日 3日）、はなびら（シール 7まい）、すうじ（1,000けた いれる）、あわ（ふくしゅう 10もん）、おかし（1回で 10もん） |
-| おんがく（5種） | マリンバ マーチ（初期）、8ビット（10回 あそぶ）、おまつり ばやし（5日 れんぞく）、ブラスバンド（あそんだ日 5日）、エレクトロ（エクストラ 3回） |
-| きせかえ（9種） | なし（初期）、ぼうし（あそんだ日 1日）、はちまき（50もん とく）、マント（20コンボ）、まるめがね（初回正解 100もん）、リボン（シール 14まい）、おうかん（14日 れんぞく）、まほうの ぼうし（☆5 1こ）、ヘッドホン（カプセル 1こ） |
-| ドパキチの いろ（8種） | ピンク（初期）、あお（5回 あそぶ）、みどり（あそんだ日 7日）、ゆきいろ（コンプリート 7日）、きいろ（300もん とく）、むらさき（エクストラ 100もん）、きんいろ（30日 れんぞく）、にじいろ（あそんだ日 100日） |
-| おきゃくさん（4種） | いろちがい（初期）、きせかえ おきゃくさん（初回正解 50もん）、にじいろ おきゃくさん（あそんだ日 30日）、おそろい おきゃくさん（ほし 100こ） |
-| フィナーレ（4種） | きょだい ドパキチ（初期）、はなびたいかい（エクストラ 5回）、パレード（10日 れんぞく）、ロケット（エクストラ 20回） |
+| Nền (6) | Tia sáng (ban đầu), Bầu trời đêm (chuỗi 3 ngày), Biển và bong bóng (100 câu đúng), Lễ hội (15 ngày đã chơi), Đồ thủ công giấy (200 câu đúng), Vũ trụ (10 màn thử thách) |
+| Dấu đúng (5) | Hoa điểm tốt (ban đầu), Con dấu đúng (3 lượt chơi), Huy chương (chuỗi 7 ngày), Vương miện (3 lượt không sai), Vòng pháo hoa (combo 30) |
+| Giấy màu (6) | Giấy màu (ban đầu), Nốt nhạc (3 ngày đã chơi), Cánh hoa (7 nhãn), Chữ số (1.000 chữ số nhập), Bong bóng (10 câu ôn tập), Kẹo (10 câu trong một lượt) |
+| Âm nhạc (5) | Nhạc marimba (ban đầu), 8-bit (10 lượt chơi), Nhạc lễ hội (chuỗi 5 ngày), Ban nhạc kèn đồng (5 ngày đã chơi), Nhạc điện tử (3 màn thử thách) |
+| Trang phục (9) | Không (ban đầu), Mũ (1 ngày đã chơi), Khăn đội đầu (50 câu đúng), Áo choàng (combo 20), Kính tròn (100 câu đúng ngay lần đầu), Nơ (14 nhãn), Vương miện (chuỗi 14 ngày), Mũ phù thủy (1 kỹ năng ☆5), Tai nghe (1 hộp thời gian) |
+| Màu Dopakichi (8) | Hồng (ban đầu), Xanh dương (5 lượt chơi), Xanh lá (7 ngày đã chơi), Trắng tuyết (hoàn thành nhiệm vụ 7 ngày), Vàng (300 câu đúng), Tím (100 câu thử thách), Vàng kim (chuỗi 30 ngày), Cầu vồng (100 ngày đã chơi) |
+| Khán giả (4) | Nhiều màu (ban đầu), Khán giả mặc đẹp (50 câu đúng ngay lần đầu), Khán giả cầu vồng (30 ngày đã chơi), Khán giả đồng phục (100 sao) |
+| Màn kết (4) | Dopakichi khổng lồ (ban đầu), Hội pháo hoa (5 màn thử thách), Diễu hành (chuỗi 10 ngày), Tên lửa (20 màn thử thách) |
 
-カテゴリごとに固定するか、「おまかせ」を選びます。おまかせはプレイ開始ごとに所持品から選択し、タイトルでは基本の見た目を使います。選択は保存され、得点や問題の難度には影響しません。
+Mỗi danh mục có thể cố định một món hoặc chọn “Ngẫu nhiên”. Ngẫu nhiên chọn từ món đang sở hữu khi bắt đầu mỗi lượt; trang chính dùng diện mạo cơ bản. Lựa chọn được lưu và không ảnh hưởng điểm hay độ khó.
 
-コレクション画面では背景・印・粒子・衣装・色・観客・フィナーレを試せます。曲は7秒試聴します。衣装と色はドパキチの元の形へ重ねて反映し、観客・フィナーレにも選択した装いを使います。
+Màn Bộ sưu tập cho xem thử nền, dấu, hạt, trang phục, màu, khán giả và màn kết; nhạc được nghe thử 7 giây. Trang phục và màu phủ lên hình dáng gốc của Dopakichi; khán giả và màn kết cũng dùng diện mạo đã chọn.
 
-## 8. ドパキチと演出・音
+## 8. Dopakichi, hiệu ứng và âm thanh
 
-ドパキチは原則ノンバーバルです。造形の基準は `docs/dopakichi.svg` です。大きな横耳、横に広い丸い頭、クリーム色の顔と腹、二重の円の目、細い腕と青い足を持ちます。基本色はピンク `#FF97BF`、クリーム `#FFF3E4`、耳の内側 `#FFE6F0`、青 `#2F79F7`、輪郭 `#000000` です。
+Dopakichi về nguyên tắc không có lời thoại. Hình mẫu nằm ở `docs/dopakichi.svg`: tai ngang lớn, đầu tròn bè ngang, mặt và bụng màu kem, mắt hai vòng tròn, tay mảnh và chân xanh. Màu cơ bản là hồng `#FF97BF`, kem `#FFF3E4`, mặt trong tai `#FFE6F0`, xanh `#2F79F7`, viền `#000000`.
 
-入力した数字は空いている手で運びます。左右の手は別々の数字を運べ、判定と運搬を分けて次の入力を待たせません。途中正解・最終正解には跳躍、拍手、回転などを使い、誤答では崩れてから復帰します。誤答演技は10種あり、序盤は4種、中盤は8種、強度0.6以上では10種から、直前と同じものを避けて選びます。
+Các chữ số đã nhập được một bàn tay trống mang đi. Hai tay có thể mang hai chữ số khác nhau, tách việc chấm và vận chuyển để không chặn lần nhập tiếp theo. Câu đúng giữa chừng và câu đúng cuối dùng nhảy, vỗ tay, xoay; câu sai dùng cảnh chao đảo rồi khôi phục. Có 10 kiểu diễn sai: đầu lượt dùng 4, giữa lượt dùng 8, từ cường độ 0,6 dùng cả 10, đồng thời tránh lặp kiểu ngay trước đó.
 
-基本の問題番号を0始まりの `i`、問題数を `N` とすると、演出強度は `E = 0.08 + 0.92 × (i/(N−1))^1.3` です。1問だけの場合は `E = 1` とします。エクストラは完了数 `k` に対し `tier = floor(k/3)`、`E = 1 + min(0.5, tier × 0.1)` です。
+Gọi số bài cơ bản bắt đầu từ 0 là `i`, số câu là `N`, cường độ hiệu ứng là `E = 0.08 + 0.92 × (i/(N−1))^1.3`. Nếu chỉ có một câu thì `E = 1`. Với màn thử thách, gọi số bài đã hoàn thành là `k`, `tier = floor(k/3)`, `E = 1 + min(0.5, tier × 0.1)`.
 
-強度に応じて背景、はなまるなどの正解印、紙吹雪・星・花火・硬貨、観客、行進、リーチ、電飾、揺れを重ねます。フィナーレは巨大ドパキチ、花火大会、ロケット、パレードから選び、最後に100点を示します。入力とテンキーの配置、筆算の位の対応を維持します。
+Theo cường độ, nền, dấu đúng, giấy màu, sao, pháo hoa, xu, khán giả, diễu hành, hiệu ứng gần đạt, đèn và rung được chồng lên. Màn kết chọn giữa Dopakichi khổng lồ, hội pháo hoa, tên lửa và diễu hành, cuối cùng hiển thị 100 điểm. Vị trí nhập, bàn phím và quan hệ hàng của phép tính dọc vẫn được giữ.
 
-音楽と効果音はWeb Audio APIで合成し、外部の録音素材を読み込みません。基本のマリンバ マーチに、8ビット、おまつり ばやし、ブラスバンド、エレクトロを加えた5曲があります。発振器・ノイズ・フィルターと残響等を使い、打楽器、低音、和音、旋律を段階的に重ねます。
+Nhạc và hiệu ứng âm thanh được tổng hợp bằng Web Audio API, không tải bản ghi bên ngoài. Có 5 bài: nhạc marimba cơ bản, 8-bit, nhạc lễ hội, ban nhạc kèn đồng và nhạc điện tử. Bộ tạo dao động, nhiễu, bộ lọc và vang được dùng để xếp dần bộ gõ, bass, hợp âm và giai điệu.
 
-基本のテンポは `112 + min(1, E) × 16` BPMで、通常の最初は113.28 BPM、最後は128 BPMです。最終問では基準から2半音上げます。エクストラは `134 + tier × 5` BPM、調は基準から `2 + min(tier, 5)` 半音です。転調には上限があり、テンポにはこの式による固定上限はありません。
+Tempo cơ bản là `112 + min(1, E) × 16` BPM; lượt thường bắt đầu ở 113,28 BPM và kết thúc ở 128 BPM. Câu cuối tăng 2 bán âm so với tông chuẩn. Màn thử thách dùng `134 + tier × 5` BPM và tông tăng `2 + min(tier, 5)` bán âm. Tông có giới hạn; tempo không có giới hạn cố định ngoài công thức này.
 
-キー、数字の着地、正解、誤答、ドパの節目、時計などを音で補い、音程は曲の和音と同期します。音の開始にはブラウザが求めるユーザー操作を使います。背景はWebGLを用い、利用不可やコンテキスト喪失時はCSSの背景へ切り替えます。
+Âm thanh báo phím, chữ số hạ xuống, đúng, sai, mốc Dopa và đồng hồ được đồng bộ với hợp âm của bài. Trình duyệt yêu cầu thao tác người dùng để bắt đầu âm thanh. Nền dùng WebGL; nếu không khả dụng hoặc mất context, ứng dụng chuyển sang nền CSS.
 
-## 9. 設定とアクセシビリティ
+## 9. Cài đặt và khả năng tiếp cận
 
-| 設定 | 内容と初期値 |
+| Cài đặt | Nội dung và mặc định |
 | --- | --- |
-| 問題数 | 6・10・14問。初期値10問 |
-| 音 | オン／オフ。初期値オン。プレイ画面のミュートからも変更可能 |
-| 音量 | 0〜100%。初期値80% |
-| 動きの強さ | 0〜100%。未設定なら端末の動きを減らす指定に合わせて0%、それ以外は100% |
-| デモプレイ | 自動操作を1周表示 |
-| すべて リセット | 確認を2回行って端末内のデータを初期化 |
+| Số câu | 6, 10, 14; mặc định 10 |
+| Âm thanh | Bật/tắt; mặc định bật; có thể đổi từ nút tắt âm thanh trong lúc chơi |
+| Âm lượng | 0–100%; mặc định 80% |
+| Mức chuyển động | 0–100%; nếu chưa thiết lập thì 0% khi thiết bị yêu cầu giảm chuyển động, ngược lại 100% |
+| Chơi thử | Hiển thị một vòng thao tác tự động |
+| Đặt lại tất cả | Xác nhận hai lần rồi khởi tạo dữ liệu trên thiết bị |
 
-動きの強さは粒子量、揺れ、閃光、背景、観客、ドパキチの大きな動きに反映します。0%では主要な移動・揺れ・閃光を止め、ガイドも静止ポーズにします。ただし全描画を停止する機能ではなく、通常画面の呼吸などと少量の粒子が残る処理があります。値を操作すると設定画面で反応を試せます。計算の判定と得点規則は変わりません。
+Mức chuyển động ảnh hưởng lượng hạt, rung, chớp, nền, khán giả và chuyển động lớn của Dopakichi. Ở 0%, các chuyển động/rung/chớp chính dừng lại và hướng dẫn dùng tư thế tĩnh. Đây không phải tắt toàn bộ kết xuất; nhịp thở ở màn thường và một lượng nhỏ hạt vẫn có thể còn. Khi kéo thanh, màn Cài đặt cho xem phản ứng. Quy tắc chấm và điểm không đổi.
 
-Escapeは、開いているダイアログを閉じるか、タイトル以外では「タイトルに もどる？」の確認を開きます。「つづける」を初期フォーカスにし、確認中は入力、基本の経過時間、エクストラとコンボの期限、問題ごとの計測を止めます。中断までに完了した問題の習熟等は残ります。基本結果前なら完走履歴は作成しません。デモ中のEscapeはデモ終了です。
+Escape đóng hộp thoại đang mở; nếu không ở trang chính thì mở xác nhận “Về màn hình chính?”. Nút “Ở lại” nhận tiêu điểm mặc định. Trong xác nhận, nhập liệu, thời gian cơ bản, hạn màn thử thách/combo và bộ đếm từng bài đều dừng. Tiến độ của các bài đã hoàn thành trước khi dừng vẫn giữ. Nếu dừng trước kết quả cơ bản, không tạo lịch sử hoàn thành. Escape trong chơi thử kết thúc chơi thử.
 
-ボタンのアクセシブル名、フォーカス表示、数字以外のラベル、ガイド内のフォーカス循環を用意します。スクリーンリーダーだけでの全プレイや、すべての端末での操作性を保証するものではありません。
+Tên truy cập của nút, trạng thái tiêu điểm, nhãn cho nội dung không phải chữ số và vòng tiêu điểm trong hướng dẫn đều được cung cấp. Ứng dụng không cam kết toàn bộ lượt chơi có thể thực hiện chỉ bằng trình đọc màn hình hoặc mọi thiết bị.
 
-高さ700px以下では問題用紙・演出領域・余白を調整し、テンキーの最下段まで画面内に収めます。短い画面でもキーの高さ48pxを維持します。
+Ở độ cao từ 700px trở xuống, giấy bài, vùng hiệu ứng và khoảng trống được điều chỉnh để hàng cuối của bàn phím nằm trong màn hình. Dù màn hình ngắn, chiều cao phím vẫn giữ 48px.
 
-全リセットの1回目は「すべて リセット」で消す内容を示し、2回目は「ほんとうに けしますか？」で復元できないことを確認します。どちらも「やめる」が初期フォーカスです。キャンセル、Escape、背景タップでは削除しません。2回目の確定で、接頭辞 `dopa-drill` を持つ保存キーをすべて削除し、メモリのキャッシュを破棄して再読み込みします。無関係なキーは保持します。
+Lần xác nhận đầu tiên của Đặt lại tất cả liệt kê nội dung sẽ xóa; lần thứ hai hỏi lại rằng không thể khôi phục. Cả hai dùng Hủy làm tiêu điểm mặc định. Hủy, Escape hoặc nhấn nền không xóa. Khi xác nhận lần hai, mọi khóa lưu có tiền tố `dopa-drill` bị xóa, cache trong bộ nhớ bị bỏ và trang tải lại; khóa không liên quan được giữ.
 
-設定・履歴・習熟・星・成長記録・トロフィー・コレクション選択・シール・クエスト・アイテム・初回ガイド状態が初期化の対象です。再起動時には初回ガイドや初期アイテムなどが改めて作られます。ブラウザが削除を拒否した場合も処理は例外終了しませんが、保存済みデータの消去は保証できません。
+Cài đặt, lịch sử, tiến độ, sao, thống kê tiến bộ, cúp, lựa chọn bộ sưu tập, nhãn, nhiệm vụ, vật phẩm và trạng thái hướng dẫn đầu tiên đều được đặt lại. Khi khởi động lại, hướng dẫn đầu tiên và vật phẩm ban đầu được tạo lại. Nếu trình duyệt từ chối xóa, ứng dụng không ném lỗi kết thúc nhưng không thể bảo đảm dữ liệu đã lưu biến mất.
 
-## 10. 保存とプライバシー
+## 10. Lưu trữ và quyền riêng tư
 
-保存先はブラウザのlocalStorageで、キーは `dopa-drill:v1`、データの版は1です。名前などの個人情報を入力する欄はなく、アプリから学習記録をサーバーへ送信しません。広告、外部解析、ランキング、端末間の同期はありません。配信サーバーからゲームの静的ファイルを取得して動作します。
+Dữ liệu lưu trong `localStorage` của trình duyệt, khóa là `dopa-drill:v1`, phiên bản dữ liệu là 1. Không có ô nhập tên hay thông tin cá nhân; ứng dụng không gửi lịch sử học tập lên máy chủ. Không có quảng cáo, phân tích bên ngoài, bảng xếp hạng hay đồng bộ thiết bị. Ứng dụng chỉ tải các tệp tĩnh từ máy chủ phân phối.
 
-保存領域が使えない、読み取りに失敗する、JSONが壊れている場合には、初期状態で起動し、保存が失敗してもその場のゲームを継続します。ブラウザのデータ消去、保存制限、別のブラウザや配信元での利用では記録を引き継げません。
+Nếu vùng lưu không dùng được, đọc thất bại hoặc JSON hỏng, ứng dụng khởi động với dữ liệu ban đầu và vẫn cho chơi khi việc lưu thất bại. Xóa dữ liệu trình duyệt, giới hạn lưu trữ, trình duyệt khác hoặc nguồn phân phối khác sẽ không kế thừa bản ghi.
 
-| 記録 | 内容・上限 |
+| Dữ liệu | Nội dung · giới hạn |
 | --- | --- |
-| 設定・ガイド | 問題数、音、音量、動き、ガイド表示済み |
-| 完走履歴 | 最大3000件。日付、モード、得点、正解、おしい、基本時間、ドパ、エクストラ |
-| スキル | 直近6問の初回正解、直近24署名、直近30問の時間・マス数・誤答・日付、直近60日分の集計、最初の3問そのもの、最終初回正解・マスター日時、星 |
-| ふくしゅう | 最大40問の問題そのもの |
-| 累計統計 | 完了問題・マス・初回正解・誤答、基本完走とモード、基本時間、最大ドパ、エクストラ、最大コンボ、ふくしゅう、遊んだ日、磨いた回数、比較・カプセル |
-| 継続・報酬 | シール、ログイン日、ノーカン日、ハンマー、クエスト、獲得済みトロフィー、演出の選択 |
+| Cài đặt và hướng dẫn | Số câu, âm thanh, âm lượng, chuyển động, đã xem hướng dẫn |
+| Lịch sử hoàn thành | Tối đa 3.000; ngày, chế độ, điểm, đúng, suýt đúng, thời gian cơ bản, Dopa, màn thử thách |
+| Kỹ năng | 6 câu gần nhất đúng ngay lần đầu, 24 chữ ký gần nhất, 30 bài gần nhất về thời gian/ô/lỗi/ngày, tổng hợp 60 ngày gần nhất, 3 bài đầu, thời điểm đúng ngay lần đầu cuối, thời điểm thạo, sao |
+| Ôn tập | Tối đa 40 bài nguyên dạng |
+| Thống kê tích lũy | Bài/ô hoàn thành, đúng ngay lần đầu, lỗi, hoàn thành cơ bản và chế độ, thời gian cơ bản, Dopa cao nhất, màn thử thách, combo cao nhất, ôn tập, ngày chơi, số lần làm nóng, so sánh và hộp thời gian |
+| Duy trì và phần thưởng | Nhãn, ngày đăng nhập, ngày bỏ qua, búa, nhiệm vụ, cúp đã nhận, lựa chọn hiệu ứng |
 
-1問の解答時間は入力受付から最後の正解入力までで、問題間の演出と確認ダイアログを含みません。累計の問題・マス・誤答は問題を完了した時点で加算するため、途中終了した未完了問題の操作は集計しません。
+Thời gian một bài tính từ lúc mở nhận nhập đến lần nhập đúng cuối cùng, không gồm hiệu ứng chuyển bài và hộp xác nhận. Tổng bài/ô/lỗi cộng khi bài hoàn thành; thao tác của bài chưa hoàn thành không được thống kê.
 
-統計がまだない保存データでは履歴から取得できる値を初期化します。過去のマス数や最大コンボなど、履歴から分からない値は0から計測します。確認用URLは保存全体を停止する機能ではありません。具体的な違いは次章に記載します。
+Nếu dữ liệu lưu chưa có thống kê, các giá trị có thể lấy từ lịch sử sẽ được khởi tạo lại. Những giá trị lịch sử không suy ra được như số ô cũ hoặc combo cao nhất bắt đầu từ 0. URL kiểm tra không phải cơ chế tắt toàn bộ việc lưu; khác biệt cụ thể nằm ở mục tiếp theo.
 
-## 11. 技術構成・実行・検証
+## 11. Công nghệ, chạy và kiểm tra
 
-### 11.1 ファイル構成
+### 11.1 Cấu trúc tệp
 
-依存ライブラリのないES Modulesで実装し、アプリのビルドは不要です。静的配信で動き、サーバー側の計算処理を必要としません。
+Ứng dụng dùng ES Modules không có thư viện phụ thuộc và không cần build. Ứng dụng chạy qua phân phối tĩnh, không cần xử lý tính toán phía máy chủ.
 
-公開サイトは [dopa-drill.tanosix.com](https://dopa-drill.tanosix.com/) です。Cloudflare Workers Static Assetsで製品ファイルのみを配信します。`app/_headers` の `Cache-Control: no-transform` により、配信時のアクセス解析スクリプトの自動挿入を止めています。
+Trang phát hành là [dopa-drill.tanosix.com](https://dopa-drill.tanosix.com/). Cloudflare Workers Static Assets chỉ phân phối các tệp sản phẩm. `app/_headers` dùng `Cache-Control: no-transform` để ngăn máy chủ tự chèn script phân tích truy cập.
 
-| ファイル・ディレクトリ | 役割 |
+| Tệp/thư mục | Vai trò |
 | --- | --- |
-| `app/index.html`、`app/style.css` | 画面とスタイル |
-| `app/js/main.js` | 進行、入力、画面、演出の連携 |
-| `app/js/guide.js` | 初回ガイドとヘルプ、案内要素の配置 |
-| `app/js/skills.js`、`app/js/problems.js` | スキル定義、問題生成、入力手順 |
-| `app/js/session.js` | 出題計画、習熟、星、さび、タイムカプセル |
-| `app/js/scoring.js`、`app/js/growth.js` | 得点・ドパ・コンボ、成長統計と比較 |
-| `app/js/quests.js`、`app/js/trophies.js`、`app/js/unlocks.js` | クエスト、実績、演出カタログ |
-| `app/js/store.js` | 保存、履歴、ログイン、ハンマー、リセット |
-| `app/js/dopakichi.js` | パーツ分割SVGのマスコットと演技 |
-| `app/js/fx.js`、`app/js/bg.js` | Canvas 2Dの粒子とWebGL背景 |
-| `app/js/audio.js`、`app/js/core.js` | Web Audio合成、時計・補間・ばね |
-| `app/fonts/` | Dela Gothic One、Zen Maru Gothicのローカルサブセット。SIL Open Font License |
-| `tests/` | 問題生成、判定、保存、成長等のテスト |
-| `tools/build_fonts.sh` | 画面の文言を変更した場合のフォント再生成 |
-| `docs/` | 本書、カリキュラム、ドパキチの造形資料 |
+| `app/index.html`, `app/style.css` | Giao diện và kiểu dáng |
+| `app/js/main.js` | Điều phối lượt chơi, nhập liệu, màn hình và hiệu ứng |
+| `app/js/guide.js` | Hướng dẫn đầu tiên, trợ giúp và vị trí đối tượng |
+| `app/js/skills.js`, `app/js/problems.js` | Định nghĩa kỹ năng, tạo bài và thứ tự nhập |
+| `app/js/session.js` | Kế hoạch bài, thành thạo, sao, kỹ năng nguội, hộp thời gian |
+| `app/js/scoring.js`, `app/js/growth.js` | Điểm, Dopa, combo, thống kê và so sánh tiến bộ |
+| `app/js/quests.js`, `app/js/trophies.js`, `app/js/unlocks.js` | Nhiệm vụ, cúp và danh mục hiệu ứng |
+| `app/js/store.js` | Lưu trữ, lịch sử, đăng nhập, búa và đặt lại |
+| `app/js/dopakichi.js` | Linh vật SVG tách phần và các động tác |
+| `app/js/fx.js`, `app/js/bg.js` | Hạt Canvas 2D và nền WebGL |
+| `app/js/audio.js`, `app/js/core.js` | Tổng hợp Web Audio, đồng hồ, nội suy và lò xo |
+| `app/fonts/` | Subset cục bộ của Baloo 2 và Nunito, SIL Open Font License |
+| `tests/` | Kiểm thử tạo bài, chấm, lưu trữ, tiến bộ và các phần khác |
+| `tools/build_fonts.sh` | Tạo lại font khi thay đổi chuỗi hiển thị |
+| `docs/` | Đặc tả, chương trình học và tài liệu hình mẫu Dopakichi |
 
-### 11.2 起動とテスト
+### 11.2 Khởi động và kiểm thử
 
-リポジトリ直下から、例えば次のコマンドで静的配信できます。表示したサーバーのアドレスで `/app/` を開きます。ES Modulesを使うため、HTMLファイルを直接開くのではなくHTTPで配信します。
+Từ thư mục gốc, có thể phân phối tĩnh bằng:
 
 ```sh
 python3 -m http.server 8000 --bind 0.0.0.0
 ```
 
-Node.jsを使うテストは次のコマンドで実行します。
+Mở `/app/` tại địa chỉ máy chủ. Vì dùng ES Modules, không mở trực tiếp tệp HTML bằng `file://`.
+
+Chạy kiểm thử Node.js:
 
 ```sh
 node --test tests/*.test.mjs
 ```
 
-製品のテストは `tests/app_*.test.mjs` の11ファイル・58件です。上記コマンドは同梱された他のテストも含むため、全体の件数は配布物によって異なります。ファイル単位の件数だけが表示されるNode.js環境では、対応する環境で `--experimental-test-isolation=none` を加えると個別テストを集計できます。
+Bộ kiểm thử sản phẩm nằm trong 11 tệp `tests/app_*.test.mjs` với 58 trường hợp. Lệnh trên bao gồm các test khác đi kèm nên tổng số có thể khác theo bản phân phối. Môi trường Node chỉ hiển thị số theo tệp có thể dùng `--experimental-test-isolation=none` để tổng hợp từng test.
 
-問題生成・入力手順、得点、保存とリセット、スキル・星、出題計画、成長比較、クエスト、トロフィー、解放演出、ガイドの配置計算を検査します。自動テストの成功は、実機の描画・音質・操作感の検証を代替しません。
+Kiểm thử bao phủ tạo bài, thứ tự nhập, điểm, lưu và đặt lại, kỹ năng/sao, kế hoạch bài, so sánh tiến bộ, nhiệm vụ, cúp, hiệu ứng mở khóa và tính vị trí hướng dẫn. Test tự động không thay thế kiểm tra kết xuất, chất lượng âm thanh và cảm giác thao tác trên thiết bị thật.
 
-### 11.3 確認用URLパラメータ
+### 11.3 Tham số URL kiểm tra
 
-`/app/?count=6&seed=123` のように指定します。
+Có thể dùng dạng `/app/?count=6&seed=123`.
 
-| パラメータ | 動作 |
+| Tham số | Hành vi |
 | --- | --- |
-| `count=6`、`count=10`、`count=14` | 起動時の問題数を選択 |
-| `seed=<数値>` | 問題選択・生成等に用いる乱数を固定。全視覚効果の乱数までは固定しない |
-| `extra=<秒>` | エクストラの既定90秒を置き換える。開始時の900ms加算は共通 |
-| `skill=<スキルID>` | 通常の問題選択をそのスキルに置き換える。ふくしゅうや固定テンプレートとの併用には選択処理の優先順位がある |
-| `demo` | じぶんレベルの入口から固定テンプレートの基本セットを開始。初問は27＋35。自動操作は行わない |
-| `capture` | 音のイベントを収集する確認経路。通常のライブ音声出力と自動ガイド・タイトル報酬通知等を抑制 |
+| `count=6`, `count=10`, `count=14` | Chọn số câu khi khởi động |
+| `seed=<số>` | Cố định ngẫu nhiên dùng để chọn/tạo bài; không cố định ngẫu nhiên của mọi hiệu ứng hình ảnh |
+| `extra=<giây>` | Thay 90 giây mặc định của màn thử thách; cộng 900ms lúc bắt đầu vẫn giữ |
+| `skill=<ID kỹ năng>` | Thay lựa chọn bài thông thường bằng kỹ năng chỉ định; Ôn tập và template cố định có thứ tự ưu tiên riêng |
+| `demo` | Bắt đầu bộ bài cơ bản template cố định từ lối vào Trình độ của mình; bài đầu là 27 + 35; không tự thao tác |
+| `capture` | Thu thập sự kiện âm thanh để kiểm tra; tắt âm thanh trực tiếp và thông báo hướng dẫn/phần thưởng trang chính tự động |
 
-`skill` と固定テンプレートのプレイでは通常の解答時間・成長統計・クエストを停止しますが、完走履歴とふくしゅうは保存されます。`skill` では出題計画が実力チェックの場合、その計画側のマスター付与とチェック完了の保存も動作します。トロフィー判定は `skill` と `capture` では停止しますが、`demo` の指定だけでは停止しません。`capture` でも通常の進捗・履歴・統計の保存は続きます。これらを記録を残さない練習機能としては扱わないでください。
+Trong lượt dùng `skill` và template cố định, thời gian trả lời, thống kê tiến bộ và nhiệm vụ thông thường bị tắt nhưng lịch sử hoàn thành và Ôn tập vẫn lưu. Với `skill`, nếu kế hoạch bài là kiểm tra năng lực thì việc cấp thạo và lưu hoàn thành kiểm tra của kế hoạch đó vẫn chạy. Xét cúp bị tắt với `skill` và `capture`, nhưng chỉ có `demo` không tắt. Với `capture`, tiến độ/lịch sử/thống kê thông thường vẫn lưu. Không coi các tham số này là chức năng luyện tập không lưu dữ liệu.

@@ -7,12 +7,12 @@
 import { SKILLS, LANES } from './skills.js';
 import { isUnlocked, isMastered, starsOf } from './session.js';
 
-export const CATS = ['つづける', 'たくさん', 'スキル', 'せいちょう', 'エクストラ', 'コンボ', 'せいかく', 'ドパ', 'ふくしゅう', 'がくねん', 'コレクション', 'ひみつ'];
+export const CATS = ['Duy trì', 'Chăm chỉ', 'Kỹ năng', 'Tiến bộ', 'Thử thách', 'Combo', 'Chính xác', 'Dopa', 'Ôn tập', 'Theo khối', 'Bộ sưu tập', 'Bí mật'];
 
-const fmt = (n) => (n >= 10000 && n % 10000 === 0 ? `${n / 10000}万` : n.toLocaleString('ja-JP'));
-const DOPA_LABEL = { 2: '100', 3: '1000', 4: '1万', 5: '10万', 6: '100万', 7: '1000万', 8: '1億', 9: '10億' };
+const fmt = (n) => n.toLocaleString('vi-VN');
+const DOPA_LABEL = { 2: '100', 3: '1.000', 4: '10.000', 5: '100.000', 6: '1 triệu', 7: '10 triệu', 8: '100 triệu', 9: '1 tỷ' };
 const RANKS = ['bronze', 'silver', 'gold', 'rainbow'];
-export const RANK_NAME = { bronze: 'どう', silver: 'ぎん', gold: 'きん', rainbow: 'にじ', secret: 'ひみつ' };
+export const RANK_NAME = { bronze: 'đồng', silver: 'bạc', gold: 'vàng', rainbow: 'cầu vồng', secret: 'bí mật' };
 
 // Rank by position in its series: first ~30% bronze, then silver, gold, and the last step rainbow.
 function rankAt(i, n) {
@@ -23,34 +23,34 @@ function rankAt(i, n) {
 
 // A series: { key, cat, title, metric, steps, name(v), desc(v) } or explicit items.
 const SERIES_DEFS = [
-  { key: 'streak', cat: 'つづける', title: 'れんぞくで あそぶ', metric: 'bestStreak', steps: [3, 5, 7, 10, 14, 21, 30, 50, 75, 100, 150, 200, 365], name: (v) => `${v}日 れんぞく`, desc: (v) => `${v}日 つづけて あそぶ` },
-  { key: 'days', cat: 'つづける', title: 'あそんだ日', metric: 'days', steps: [1, 3, 5, 7, 10, 15, 20, 30, 40, 50, 75, 100, 150, 200, 300, 365, 500, 730, 1000], name: (v) => `あそんだ日 ${fmt(v)}日`, desc: (v) => `あそんだ日が ぜんぶで ${fmt(v)}日` },
-  { key: 'stickers', cat: 'つづける', title: 'ログインシール', metric: 'stickers', steps: [1, 7, 14, 30, 50, 100, 200, 365], name: (v) => `シール ${v}まい`, desc: (v) => `ログインボーナスの シールを ${v}まい あつめる` },
-  { key: 'crowns', cat: 'つづける', title: 'おうかんシール', metric: 'crowns', steps: [1, 3, 5, 10, 20, 52], name: (v) => `おうかん ${v}こ`, desc: (v) => `7日めの おうかんシールを ${v}まい あつめる` },
-  { key: 'problems', cat: 'たくさん', title: 'といた もんだい', metric: 'problems', steps: [10, 30, 50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000, 7500, 10000, 20000, 30000, 50000, 100000], name: (v) => `${fmt(v)}もん とく`, desc: (v) => `もんだいを ぜんぶで ${fmt(v)}もん とく` },
-  { key: 'cells', cat: 'たくさん', title: 'いれた すうじ', metric: 'cells', steps: [100, 500, 1000, 3000, 5000, 10000, 30000, 50000, 100000, 300000], name: (v) => `${fmt(v)}けた いれる`, desc: (v) => `正しい すうじを ぜんぶで ${fmt(v)}けた いれる` },
-  { key: 'plays', cat: 'たくさん', title: 'あそんだ回数', metric: 'plays', steps: [1, 3, 5, 10, 20, 30, 50, 100, 200, 300, 500, 1000, 2000], name: (v) => `${fmt(v)}回 あそぶ`, desc: (v) => `ドリルを ぜんぶで ${fmt(v)}回 さいごまで とく` },
-  { key: 'minutes', cat: 'たくさん', title: 'あそんだ時間', metric: 'minutes', steps: [10, 30, 60, 120, 300, 600, 1200, 3000], name: (v) => (v >= 60 ? `あわせて ${v / 60}時間` : `あわせて ${v}ふん`), desc: (v) => `あそんだ時間が ぜんぶで ${v >= 60 ? `${v / 60}時間` : `${v}ふん`}` },
-  { key: 'unlocked', cat: 'スキル', title: 'スキル かいほう', metric: 'unlocked', steps: [3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 58], name: (v) => `かいほう ${v}こ`, desc: (v) => `スキルを ${v}こ かいほうする` },
-  { key: 'mastered', cat: 'スキル', title: 'スキル マスター', metric: 'mastered', steps: [1, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 58], name: (v) => `マスター ${v}こ`, desc: (v) => `スキルを ${v}こ マスターする` },
-  { key: 'gradeDone', cat: 'スキル', title: '学年 ぜんぶ マスター', items: [1, 2, 3, 4, 5, 6].map((g) => ({ id: `gradeDone-${g}`, metric: `gradeDone${g}`, need: 1, name: `${g}年生 ぜんぶ マスター`, desc: `${g}年生の スキルを ぜんぶ マスターする` })) },
-  { key: 'laneDone', cat: 'スキル', title: 'けいとう ぜんぶ マスター', items: LANES.map((l, i) => ({ id: `laneDone-${i}`, metric: `laneDone${i}`, need: 1, name: `${l} マスター`, desc: `「${l}」の スキルを ぜんぶ マスターする` })) },
-  { key: 'extras', cat: 'エクストラ', title: 'エクストラに いく', metric: 'extras', steps: [1, 3, 5, 10, 20, 30, 50, 100, 200, 300], name: (v) => `エクストラ ${v}回`, desc: (v) => `エクストラに ${v}回 すすむ` },
-  { key: 'extraBest', cat: 'エクストラ', title: 'エクストラ 1回の さいこう', metric: 'extraBest', steps: [3, 5, 7, 10, 12, 15, 18, 20, 23, 25, 30], name: (v) => `1回で ${v}もん`, desc: (v) => `1回の エクストラで ${v}もん とく` },
-  { key: 'extraSolved', cat: 'エクストラ', title: 'エクストラで といた', metric: 'extraSolved', steps: [10, 30, 50, 100, 200, 300, 500, 1000, 2000, 3000], name: (v) => `エクストラ ${fmt(v)}もん`, desc: (v) => `エクストラで ぜんぶで ${fmt(v)}もん とく` },
-  { key: 'combo', cat: 'コンボ', title: 'コンボ', metric: 'maxCombo', steps: [5, 10, 15, 20, 30, 40, 50, 75, 100, 150, 200, 300], name: (v) => `${v}コンボ`, desc: (v) => `${v}コンボを だす` },
-  { key: 'perfects', cat: 'せいかく', title: 'ノーミスで かんそう', metric: 'perfects', steps: [1, 3, 5, 10, 20, 30, 50, 100, 200, 300], name: (v) => `ノーミス ${v}回`, desc: (v) => `初回正解率100%で ${v}回 さいごまで とく` },
-  { key: 'firstTry', cat: 'せいかく', title: '初回正解', metric: 'firstTry', steps: [10, 50, 100, 300, 500, 1000, 3000, 5000, 10000, 30000], name: (v) => `初回正解 ${fmt(v)}もん`, desc: (v) => `いっかいで 正解した もんだいが ${fmt(v)}もん` },
-  { key: 'dopa', cat: 'ドパ', title: 'ドパ', metric: 'bestDopaL', steps: [2, 3, 4, 5, 6, 7, 8, 9], name: (v) => `${DOPA_LABEL[v]}ドパ`, desc: (v) => `1回の プレイで ドパ ${DOPA_LABEL[v]}を こえる` },
-  { key: 'review', cat: 'ふくしゅう', title: 'ふくしゅう', metric: 'reviewSolved', steps: [1, 5, 10, 30, 50, 100, 200, 300], name: (v) => `ふくしゅう ${v}もん`, desc: (v) => `まちがえた もんだいを ${v}もん やりなおす` },
-  ...[1, 2, 3, 4, 5, 6].map((g) => ({ key: `grade${g}`, cat: 'がくねん', title: `${g}ねんせいで あそぶ`, metric: `gradePlays${g}`, steps: [1, 10, 30], name: (v) => `${g}ねんせい ${v}回`, desc: (v) => `「${g}ねんせい」で ${v}回 あそぶ` })),
-  { key: 'secret', cat: 'ひみつ', title: 'ひみつ', items: [
-    { id: 'secret-perfect14', metric: 'flag:perfect14', need: 1, name: '14もん パーフェクト', desc: '14もんを おしい 0回で とく', secret: true },
-    { id: 'secret-extraClean', metric: 'flag:extraClean', need: 1, name: 'エクストラ ノーミス', desc: 'エクストラで 5もん いじょう、おしい 0回', secret: true },
-    { id: 'secret-sunday', metric: 'flag:sunday', need: 1, name: 'にちようびの さんすう', desc: 'にちようびに あそぶ', secret: true },
-    { id: 'secret-newyear', metric: 'flag:newyear', need: 1, name: 'おしょうがつ ドリル', desc: '1月1日に あそぶ', secret: true },
-    { id: 'secret-comeback', metric: 'flag:comeback', need: 1, name: 'おかえり！', desc: '1しゅうかん いじょう あいてから また あそぶ', secret: true },
-    { id: 'secret-allmodes', metric: 'allModes', need: 1, name: 'ぜんぶの あそびかた', desc: 'じぶんレベル・学年べつ・れんしゅう・ふくしゅうを ぜんぶ あそぶ', secret: true },
+  { key: 'streak', cat: 'Duy trì', title: 'Chơi liên tiếp', metric: 'bestStreak', steps: [3, 5, 7, 10, 14, 21, 30, 50, 75, 100, 150, 200, 365], name: (v) => `${v} ngày liên tiếp`, desc: (v) => `Chơi liên tiếp ${v} ngày` },
+  { key: 'days', cat: 'Duy trì', title: 'Ngày đã chơi', metric: 'days', steps: [1, 3, 5, 7, 10, 15, 20, 30, 40, 50, 75, 100, 150, 200, 300, 365, 500, 730, 1000], name: (v) => `Đã chơi ${fmt(v)} ngày`, desc: (v) => `Tổng cộng chơi ${fmt(v)} ngày` },
+  { key: 'stickers', cat: 'Duy trì', title: 'Nhãn đăng nhập', metric: 'stickers', steps: [1, 7, 14, 30, 50, 100, 200, 365], name: (v) => `${v} nhãn`, desc: (v) => `Sưu tầm ${v} nhãn thưởng đăng nhập` },
+  { key: 'crowns', cat: 'Duy trì', title: 'Nhãn vương miện', metric: 'crowns', steps: [1, 3, 5, 10, 20, 52], name: (v) => `${v} vương miện`, desc: (v) => `Sưu tầm ${v} nhãn vương miện ngày thứ 7` },
+  { key: 'problems', cat: 'Chăm chỉ', title: 'Câu đã giải', metric: 'problems', steps: [10, 30, 50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000, 7500, 10000, 20000, 30000, 50000, 100000], name: (v) => `${fmt(v)} câu`, desc: (v) => `Giải tổng cộng ${fmt(v)} câu` },
+  { key: 'cells', cat: 'Chăm chỉ', title: 'Chữ số đã nhập', metric: 'cells', steps: [100, 500, 1000, 3000, 5000, 10000, 30000, 50000, 100000, 300000], name: (v) => `${fmt(v)} chữ số`, desc: (v) => `Nhập đúng tổng cộng ${fmt(v)} chữ số` },
+  { key: 'plays', cat: 'Chăm chỉ', title: 'Số lần chơi', metric: 'plays', steps: [1, 3, 5, 10, 20, 30, 50, 100, 200, 300, 500, 1000, 2000], name: (v) => `${fmt(v)} lần`, desc: (v) => `Hoàn thành bài luyện ${fmt(v)} lần` },
+  { key: 'minutes', cat: 'Chăm chỉ', title: 'Thời gian chơi', metric: 'minutes', steps: [10, 30, 60, 120, 300, 600, 1200, 3000], name: (v) => (v >= 60 ? `Tổng ${v / 60} giờ` : `Tổng ${v} phút`), desc: (v) => `Tổng thời gian chơi: ${v >= 60 ? `${v / 60} giờ` : `${v} phút`}` },
+  { key: 'unlocked', cat: 'Kỹ năng', title: 'Mở khóa kỹ năng', metric: 'unlocked', steps: [3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 58], name: (v) => `Mở khóa ${v} kỹ năng`, desc: (v) => `Mở khóa ${v} kỹ năng` },
+  { key: 'mastered', cat: 'Kỹ năng', title: 'Thạo kỹ năng', metric: 'mastered', steps: [1, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 58], name: (v) => `Thạo ${v} kỹ năng`, desc: (v) => `Thạo ${v} kỹ năng` },
+  { key: 'gradeDone', cat: 'Kỹ năng', title: 'Thạo toàn bộ khối', items: [1, 2, 3, 4, 5, 6].map((g) => ({ id: `gradeDone-${g}`, metric: `gradeDone${g}`, need: 1, name: `Thạo toàn bộ lớp ${g}`, desc: `Thạo toàn bộ kỹ năng lớp ${g}` })) },
+  { key: 'laneDone', cat: 'Kỹ năng', title: 'Thạo toàn bộ nhóm', items: LANES.map((l, i) => ({ id: `laneDone-${i}`, metric: `laneDone${i}`, need: 1, name: `${l} — Thạo`, desc: `Thạo toàn bộ kỹ năng nhóm ${l}` })) },
+  { key: 'extras', cat: 'Thử thách', title: 'Vào màn thử thách', metric: 'extras', steps: [1, 3, 5, 10, 20, 30, 50, 100, 200, 300], name: (v) => `Thử thách ${v} lần`, desc: (v) => `Vào màn thử thách ${v} lần` },
+  { key: 'extraBest', cat: 'Thử thách', title: 'Kỷ lục một màn thử thách', metric: 'extraBest', steps: [3, 5, 7, 10, 12, 15, 18, 20, 23, 25, 30], name: (v) => `${v} câu trong 1 lần`, desc: (v) => `Giải ${v} câu trong 1 màn thử thách` },
+  { key: 'extraSolved', cat: 'Thử thách', title: 'Câu đã giải ở thử thách', metric: 'extraSolved', steps: [10, 30, 50, 100, 200, 300, 500, 1000, 2000, 3000], name: (v) => `Thử thách ${fmt(v)} câu`, desc: (v) => `Giải tổng cộng ${fmt(v)} câu ở thử thách` },
+  { key: 'combo', cat: 'Combo', title: 'Combo', metric: 'maxCombo', steps: [5, 10, 15, 20, 30, 40, 50, 75, 100, 150, 200, 300], name: (v) => `Combo ${v}`, desc: (v) => `Đạt combo ${v}` },
+  { key: 'perfects', cat: 'Chính xác', title: 'Hoàn thành không lỗi', metric: 'perfects', steps: [1, 3, 5, 10, 20, 30, 50, 100, 200, 300], name: (v) => `Không lỗi ${v} lần`, desc: (v) => `Hoàn thành ${v} lần với tỷ lệ đúng lần đầu 100%` },
+  { key: 'firstTry', cat: 'Chính xác', title: 'Đúng ngay lần đầu', metric: 'firstTry', steps: [10, 50, 100, 300, 500, 1000, 3000, 5000, 10000, 30000], name: (v) => `Đúng lần đầu ${fmt(v)} câu`, desc: (v) => `Có ${fmt(v)} câu đúng ngay lần đầu` },
+  { key: 'dopa', cat: 'Dopa', title: 'Dopa', metric: 'bestDopaL', steps: [2, 3, 4, 5, 6, 7, 8, 9], name: (v) => `${DOPA_LABEL[v]} Dopa`, desc: (v) => `Vượt ${DOPA_LABEL[v]} Dopa trong 1 lần chơi` },
+  { key: 'review', cat: 'Ôn tập', title: 'Ôn tập', metric: 'reviewSolved', steps: [1, 5, 10, 30, 50, 100, 200, 300], name: (v) => `Ôn tập ${v} câu`, desc: (v) => `Làm lại ${v} câu đã sai` },
+  ...[1, 2, 3, 4, 5, 6].map((g) => ({ key: `grade${g}`, cat: 'Theo khối', title: `Chơi lớp ${g}`, metric: `gradePlays${g}`, steps: [1, 10, 30], name: (v) => `Lớp ${g}: ${v} lần`, desc: (v) => `Chơi lớp ${g} ${v} lần` })),
+  { key: 'secret', cat: 'Bí mật', title: 'Bí mật', items: [
+    { id: 'secret-perfect14', metric: 'flag:perfect14', need: 1, name: '14 câu hoàn hảo', desc: 'Giải 14 câu với 0 lần suýt đúng', secret: true },
+    { id: 'secret-extraClean', metric: 'flag:extraClean', need: 1, name: 'Thử thách không lỗi', desc: 'Giải ít nhất 5 câu ở thử thách với 0 lần suýt đúng', secret: true },
+    { id: 'secret-sunday', metric: 'flag:sunday', need: 1, name: 'Toán chủ nhật', desc: 'Chơi vào chủ nhật', secret: true },
+    { id: 'secret-newyear', metric: 'flag:newyear', need: 1, name: 'Bài luyện đầu năm', desc: 'Chơi vào ngày 1 tháng 1', secret: true },
+    { id: 'secret-comeback', metric: 'flag:comeback', need: 1, name: 'Chào mừng trở lại!', desc: 'Chơi lại sau ít nhất 1 tuần nghỉ', secret: true },
+    { id: 'secret-allmodes', metric: 'allModes', need: 1, name: 'Đủ mọi cách chơi', desc: 'Chơi đủ Trình độ của mình, Theo khối, Luyện tập và Ôn tập', secret: true },
   ] },
 ];
 
@@ -70,20 +70,20 @@ export function addSeries(def) {
 SERIES_DEFS.forEach(addSeries);
 
 // id045: the features added after id036 (stars, quests, hammer, rust,
-// time capsule, "のびたよ", collection).
+// time capsule, "you improved", collection).
 [
-  { key: 'questDays', cat: 'つづける', title: 'クエスト コンプリート', metric: 'questDays', steps: [1, 3, 7, 14, 30, 50, 100, 200, 365], name: (v) => `コンプリート ${v}日`, desc: (v) => `きょうの クエストを ぜんぶ クリアした日が ${v}日` },
-  { key: 'questRun', cat: 'つづける', title: 'クエスト れんぞく', metric: 'questRun', steps: [2, 3, 5, 7, 14, 30], name: (v) => `クエスト ${v}日 れんぞく`, desc: (v) => `${v}日 つづけて クエストを ぜんぶ クリアする` },
-  { key: 'hammer', cat: 'つづける', title: 'ノーカンハンマー', metric: 'hammerUsed', steps: [1, 3, 10], name: (v) => (v === 1 ? 'はじめての ノーカン' : `ノーカン ${v}回`), desc: (v) => `ノーカンハンマーを ${v}回 つかう` },
-  { key: 'starsTotal', cat: 'スキル', title: 'ほしの かず', metric: 'starsTotal', steps: [5, 10, 25, 50, 75, 100, 150, 200, 250, 290], name: (v) => `ほし ${v}こ`, desc: (v) => `スキルの ほしを ぜんぶで ${v}こ あつめる` },
-  { key: 'star5', cat: 'スキル', title: '☆5の スキル', metric: 'star5', steps: [1, 3, 5, 10, 20, 30, 58], name: (v) => `☆5 ${v}こ`, desc: (v) => `☆5の スキルを ${v}こ つくる` },
-  { key: 'gradeStar3', cat: 'スキル', title: '学年 ぜんぶ ☆3', items: [1, 2, 3, 4, 5, 6].map((g) => ({ id: `gradeStar3-${g}`, metric: `gradeStar3${g}`, need: 1, name: `${g}年生 ぜんぶ ☆3`, desc: `${g}年生の スキルを ぜんぶ ☆3 いじょうに する` })) },
-  { key: 'polished', cat: 'せいちょう', title: 'さびを みがく', metric: 'polished', steps: [1, 3, 5, 10, 30, 50], name: (v) => `ピカピカ ${v}回`, desc: (v) => `さびた スキルを ${v}回 みがく` },
-  { key: 'capsules', cat: 'せいちょう', title: 'タイムカプセル', metric: 'capsules', steps: [1, 3, 5, 10, 30], name: (v) => `カプセル ${v}こ`, desc: (v) => `タイムカプセルを ${v}こ あける` },
-  { key: 'capsuleFaster', cat: 'せいちょう', title: 'あの日より はやい', metric: 'capsuleFaster', steps: [1, 5, 10], name: (v) => `あの日より はやく ${v}回`, desc: (v) => `タイムカプセルで あの日より はやく とく（${v}回）` },
-  { key: 'grew', cat: 'せいちょう', title: 'のびたよ！', metric: 'grew', steps: [1, 5, 10, 30, 50, 100], name: (v) => `のびた ${v}回`, desc: (v) => `けっかで「のびたよ！」が ${v}回 でる` },
-  { key: 'items', cat: 'コレクション', title: 'コレクション', metric: 'itemsOwned', steps: [10, 20, 30, 40, 47], name: (v) => `コレクション ${v}こ`, desc: (v) => `コレクションを ${v}こ あつめる` },
-  { key: 'catComplete', cat: 'コレクション', title: 'ぜんぶ そろえた', metric: 'catComplete', steps: [1, 3, 5, 8], name: (v) => `${v}しゅるい コンプリート`, desc: (v) => `コレクションの ${v}しゅるいを ぜんぶ そろえる` },
+  { key: 'questDays', cat: 'Duy trì', title: 'Hoàn thành nhiệm vụ', metric: 'questDays', steps: [1, 3, 7, 14, 30, 50, 100, 200, 365], name: (v) => `Hoàn thành ${v} ngày`, desc: (v) => `Hoàn thành toàn bộ nhiệm vụ hôm nay trong ${v} ngày` },
+  { key: 'questRun', cat: 'Duy trì', title: 'Chuỗi nhiệm vụ', metric: 'questRun', steps: [2, 3, 5, 7, 14, 30], name: (v) => `Nhiệm vụ ${v} ngày liên tiếp`, desc: (v) => `Hoàn thành toàn bộ nhiệm vụ ${v} ngày liên tiếp` },
+  { key: 'hammer', cat: 'Duy trì', title: 'Búa bỏ qua', metric: 'hammerUsed', steps: [1, 3, 10], name: (v) => (v === 1 ? 'Búa đầu tiên' : `Bỏ qua ${v} lần`), desc: (v) => `Dùng búa bỏ qua ${v} lần` },
+  { key: 'starsTotal', cat: 'Kỹ năng', title: 'Số sao', metric: 'starsTotal', steps: [5, 10, 25, 50, 75, 100, 150, 200, 250, 290], name: (v) => `Sưu tầm ${v} sao`, desc: (v) => `Sưu tầm tổng cộng ${v} sao kỹ năng` },
+  { key: 'star5', cat: 'Kỹ năng', title: 'Kỹ năng ☆5', metric: 'star5', steps: [1, 3, 5, 10, 20, 30, 58], name: (v) => `☆5 ${v} kỹ năng`, desc: (v) => `Đạt ☆5 ở ${v} kỹ năng` },
+  { key: 'gradeStar3', cat: 'Kỹ năng', title: 'Toàn bộ lớp ☆3', items: [1, 2, 3, 4, 5, 6].map((g) => ({ id: `gradeStar3-${g}`, metric: `gradeStar3${g}`, need: 1, name: `Toàn bộ lớp ${g} đạt ☆3`, desc: `Đưa toàn bộ kỹ năng lớp ${g} lên ít nhất ☆3` })) },
+  { key: 'polished', cat: 'Tiến bộ', title: 'Đánh bóng kỹ năng', metric: 'polished', steps: [1, 3, 5, 10, 30, 50], name: (v) => `Lấp lánh ${v} lần`, desc: (v) => `Đánh bóng kỹ năng bị nguội ${v} lần` },
+  { key: 'capsules', cat: 'Tiến bộ', title: 'Hộp thời gian', metric: 'capsules', steps: [1, 3, 5, 10, 30], name: (v) => `Mở ${v} hộp`, desc: (v) => `Mở ${v} hộp thời gian` },
+  { key: 'capsuleFaster', cat: 'Tiến bộ', title: 'Nhanh hơn ngày xưa', metric: 'capsuleFaster', steps: [1, 5, 10], name: (v) => `Nhanh hơn ngày xưa ${v} lần`, desc: (v) => `Giải nhanh hơn ngày xưa ${v} lần trong hộp thời gian` },
+  { key: 'grew', cat: 'Tiến bộ', title: 'Tiến bộ!', metric: 'grew', steps: [1, 5, 10, 30, 50, 100], name: (v) => `Tiến bộ ${v} lần`, desc: (v) => `Xuất hiện thông báo “Tiến bộ!” ${v} lần` },
+  { key: 'items', cat: 'Bộ sưu tập', title: 'Bộ sưu tập', metric: 'itemsOwned', steps: [10, 20, 30, 40, 47], name: (v) => `Bộ sưu tập ${v} món`, desc: (v) => `Sưu tầm ${v} món trong bộ sưu tập` },
+  { key: 'catComplete', cat: 'Bộ sưu tập', title: 'Đủ bộ', metric: 'catComplete', steps: [1, 3, 5, 8], name: (v) => `${v} loại hoàn tất`, desc: (v) => `Sưu tầm đủ ${v} loại trong bộ sưu tập` },
 ].forEach(addSeries);
 
 // Numbers every trophy is measured against, from the saved state.

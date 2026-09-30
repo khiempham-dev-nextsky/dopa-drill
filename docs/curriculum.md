@@ -1,186 +1,186 @@
-# ドパドリル — 計算範囲とスキル一覧
+# Dopa Drill — Phạm vi tính toán và danh sách kỹ năng
 
-本書は、ドパドリルが現在出題する計算、スキルの前提関係、問題の生成条件と入力方式を説明します。数値は今後の調整で変更する場合があります。ゲーム全体の規則は `docs/SPEC.md`、スキル定義は `app/js/skills.js`、出題処理は `app/js/problems.js` を参照します。
+Tài liệu này mô tả các phép tính hiện được Dopa Drill đưa ra, quan hệ tiên quyết giữa các kỹ năng, điều kiện tạo bài và cách nhập đáp án. Các con số có thể thay đổi khi cân bằng trò chơi. Quy tắc toàn trò chơi nằm trong `docs/SPEC.md`; định nghĩa kỹ năng ở `app/js/skills.js`; xử lý tạo bài ở `app/js/problems.js`.
 
-## 1. 対象と構成
+## 1. Phạm vi và cấu trúc
 
-数字を入力して答える計算を、1〜6年生に配当した58スキルで扱います。四則計算と筆算、小数・分数、概数、約数・倍数、計算順序、百分率、等しい比、文字の値が対象です。図形、長さ・かさ・時刻などの測定、グラフ、文章題、漢数字や位取り表への入力は含みません。
+Trò chơi có 58 kỹ năng dành cho lớp 1–6, yêu cầu người chơi nhập chữ số để trả lời. Nội dung gồm bốn phép tính, phép tính dọc, số thập phân và phân số, số gần đúng, ước và bội, thứ tự tính, phần trăm, tỉ số bằng nhau và giá trị của ẩn. Không gồm hình học, đo độ dài/dung tích/thời gian, biểu đồ, bài toán có lời văn, nhập chữ số Hán hoặc bảng giá trị hàng.
 
-学年は本アプリの配当を示し、教科書の全単元を網羅するものではありません。スキルの名前だけで出題を推測せず、一覧の条件と生成器の説明を合わせて参照してください。
+Khối lớp ở đây là cách phân bổ của ứng dụng, không bao quát toàn bộ chương trình sách giáo khoa. Không nên suy đoán bài chỉ từ tên kỹ năng; hãy đọc cả điều kiện trong danh sách và mô tả bộ sinh bài.
 
-| 学年 | スキル数 | 主な内容 |
-| --- | --- | --- |
-| 1 | 8 | 10の分解、くり上がり・くり下がり、3つの数、簡単な2桁の加減 |
-| 2 | 13 | 2桁と簡単な3桁の加減筆算、九九、何十×1桁、もとの数の1/2・1/4 |
-| 3 | 14 | 3・4桁の加減、整数乗法の筆算、除法と余り、小数第1位の加減、同分母分数 |
-| 4 | 10 | 整数除法の筆算、計算順序、四捨五入、小数第2位の加減、小数と整数の乗除、帯分数 |
-| 5 | 8 | 小数同士の乗除、最大公約数・最小公倍数、約分、異分母分数、分数と整数、百分率 |
-| 6 | 5 | 分数同士の乗除、小数と分数の乗法、等しい比、xの値 |
+| Khối | Số kỹ năng | Nội dung chính |
+| --- | ---: | --- |
+| 1 | 8 | Tách số 10, nhớ và mượn, tính với 3 số, cộng trừ hai chữ số đơn giản |
+| 2 | 13 | Cộng trừ dọc hai chữ số và một phần ba chữ số, bảng nhân, số tròn chục × một chữ số, 1/2 và 1/4 của số ban đầu |
+| 3 | 14 | Cộng trừ 3–4 chữ số, nhân số nguyên dọc, chia có dư, cộng trừ số thập phân một chữ số, phân số cùng mẫu |
+| 4 | 10 | Chia số nguyên dọc, thứ tự tính, làm tròn, cộng trừ đến chữ số thập phân thứ hai, nhân chia số thập phân với số nguyên, hỗn số |
+| 5 | 8 | Nhân chia số thập phân, ước chung lớn nhất và bội chung nhỏ nhất, rút gọn, phân số khác mẫu, phân số với số nguyên, phần trăm |
+| 6 | 5 | Nhân chia phân số, nhân số thập phân với phân số, tỉ số bằng nhau, tìm x |
 
-系統は「たし・ひき」「かけ・わり」「小数・分数」「そのほか」です。画面では各系統を2列に分けます。縦に隣り合うスキルが必ずしも前提になるわけではありません。
+Bốn nhóm là “Cộng & trừ”, “Nhân & chia”, “Số thập phân & phân số” và “Khác”. Trên màn hình, mỗi nhóm được chia thành hai cột. Hai kỹ năng nằm cạnh nhau theo chiều dọc chưa chắc có quan hệ tiên quyết.
 
-## 2. スキル一覧
+## 2. Danh sách kỹ năng
 
-以下は実装の定義順です。ID、画面の名前、系統、すべての前提、生成器とパラメータを掲載します。前提欄の「なし」は最初から解放されるスキルです。
+Bảng dưới đây theo đúng thứ tự định nghĩa trong mã nguồn, gồm ID, tên hiển thị, nhóm, toàn bộ tiên quyết, bộ sinh và tham số. “Không” trong cột tiên quyết nghĩa là kỹ năng được mở ngay từ đầu.
 
-パラメータの `[最小,最大]` は両端を含む整数範囲です。`dans`・`dens` は選択候補の配列です。`da`・`db` は被演算数の桁数、`dd`・`ds` は被除数・除数の桁数、`pa`・`pb` は小数桁数です。条件の追加選別により、範囲内のすべての組み合わせが出るわけではありません。
+Tham số `[tối thiểu,tối đa]` là khoảng số nguyên bao gồm cả hai đầu. `dans` và `dens` là mảng ứng viên. `da` và `db` là số chữ số của các số bị tác động; `dd` và `ds` là số chữ số của số bị chia và số chia; `pa` và `pb` là số chữ số thập phân. Bộ lọc bổ sung khiến không phải mọi tổ hợp trong khoảng đều xuất hiện.
 
-### 1年生
+### Lớp 1
 
-| ID | 名前 | 系統 | 前提（すべて必要） | 生成器・パラメータ |
+| ID | Tên | Nhóm | Tiên quyết (cần tất cả) | Bộ sinh · tham số |
 | --- | --- | --- | --- | --- |
-| `g1-compose10` | 10のまとまり | たし・ひき | なし | `compose` `{"total":10}` |
-| `g1-add-nc` | 1けたのたしざん | たし・ひき | なし | `hadd` `{"a":[1,9],"b":[1,9],"carry":"none"}` |
-| `g1-sub-nb` | 10までのひきざん | たし・ひき | `g1-add-nc` | `hsub` `{"a":[2,10],"b":[1,9],"borrow":"none"}` |
-| `g1-add-c` | くりあがりのたしざん | たし・ひき | `g1-compose10`、`g1-add-nc` | `hadd` `{"a":[2,9],"b":[2,9],"carry":"yes"}` |
-| `g1-sub-b` | くりさがりのひきざん | たし・ひき | `g1-add-c`、`g1-sub-nb` | `hsub` `{"a":[11,18],"b":[2,9],"borrow":"yes"}` |
-| `g1-add3` | 3つのかずのけいさん | たし・ひき | `g1-sub-b` | `add3` `{}` |
-| `g1-add-2d1` | 2けた＋1けた | たし・ひき | `g1-add-c` | `hadd` `{"a":[11,89],"b":[1,9],"carry":"none","tensToo":true}` |
-| `g1-sub-2d1` | 2けた−1けた | たし・ひき | `g1-sub-b`、`g1-add-2d1` | `hsub` `{"a":[11,99],"b":[1,9],"borrow":"none","tensToo":true}` |
+| `g1-compose10` | Gộp đủ 10 | Cộng & trừ | Không | `compose` `{"total":10}` |
+| `g1-add-nc` | Cộng 1 chữ số | Cộng & trừ | Không | `hadd` `{"a":[1,9],"b":[1,9],"carry":"none"}` |
+| `g1-sub-nb` | Trừ trong phạm vi 10 | Cộng & trừ | `g1-add-nc` | `hsub` `{"a":[2,10],"b":[1,9],"borrow":"none"}` |
+| `g1-add-c` | Cộng có nhớ | Cộng & trừ | `g1-compose10`, `g1-add-nc` | `hadd` `{"a":[2,9],"b":[2,9],"carry":"yes"}` |
+| `g1-sub-b` | Trừ có mượn | Cộng & trừ | `g1-add-c`, `g1-sub-nb` | `hsub` `{"a":[11,18],"b":[2,9],"borrow":"yes"}` |
+| `g1-add3` | Tính với 3 số | Cộng & trừ | `g1-sub-b` | `add3` `{}` |
+| `g1-add-2d1` | Hai chữ số + một chữ số | Cộng & trừ | `g1-add-c` | `hadd` `{"a":[11,89],"b":[1,9],"carry":"none","tensToo":true}` |
+| `g1-sub-2d1` | Hai chữ số − một chữ số | Cộng & trừ | `g1-sub-b`, `g1-add-2d1` | `hsub` `{"a":[11,99],"b":[1,9],"borrow":"none","tensToo":true}` |
 
-### 2年生
+### Lớp 2
 
-| ID | 名前 | 系統 | 前提（すべて必要） | 生成器・パラメータ |
+| ID | Tên | Nhóm | Tiên quyết (cần tất cả) | Bộ sinh · tham số |
 | --- | --- | --- | --- | --- |
-| `g2-vadd2-nc` | 2けたのたしざん ひっさん | たし・ひき | `g1-add-2d1` | `vadd` `{"da":2,"db":2,"carry":"none","maxDigits":2}` |
-| `g2-vadd2-c` | くりあがりのひっさん | たし・ひき | `g2-vadd2-nc`、`g1-add-c` | `vadd` `{"da":2,"db":[1,2],"carry":"some","maxDigits":2}` |
-| `g2-vsub2-nb` | 2けたのひきざん ひっさん | たし・ひき | `g1-sub-2d1` | `vsub` `{"da":2,"db":2,"borrow":"none"}` |
-| `g2-vsub2-b` | くりさがりのひっさん | たし・ひき | `g2-vsub2-nb`、`g1-sub-b` | `vsub` `{"da":2,"db":[1,2],"borrow":"some"}` |
-| `g2-vadd3s` | 百をこえるたしざん | たし・ひき | `g2-vadd2-c` | `vadd` `{"da":2,"db":2,"carry":"many","maxDigits":3}` |
-| `g2-vsub3s` | 百からのひきざん | たし・ひき | `g2-vsub2-b`、`g2-vadd3s` | `vsub` `{"da":3,"db":2,"borrow":"some","aMax":199}` |
-| `g2-kuku25` | 九九 5と2のだん | かけ・わり | `g1-add-c` | `kuku` `{"dans":[5,2]}` |
-| `g2-kuku34` | 九九 3と4のだん | かけ・わり | `g2-kuku25` | `kuku` `{"dans":[3,4]}` |
-| `g2-kuku67` | 九九 6と7のだん | かけ・わり | `g2-kuku34` | `kuku` `{"dans":[6,7]}` |
-| `g2-kuku891` | 九九 8・9・1のだん | かけ・わり | `g2-kuku67` | `kuku` `{"dans":[8,9,1]}` |
-| `g2-kuku-mix` | 九九 まぜこぜ | かけ・わり | `g2-kuku891` | `kuku` `{"dans":[1,2,3,4,5,6,7,8,9]}` |
-| `g2-mul-tens` | 何十×1けた | かけ・わり | `g2-kuku-mix` | `mulTens` `{}` |
-| `g2-frac-of` | 1/2と1/4 | 小数・分数 | `g2-kuku25` | `fracOf` `{"dens":[2,4]}` |
+| `g2-vadd2-nc` | Cộng dọc hai chữ số | Cộng & trừ | `g1-add-2d1` | `vadd` `{"da":2,"db":2,"carry":"none","maxDigits":2}` |
+| `g2-vadd2-c` | Cộng dọc có nhớ | Cộng & trừ | `g2-vadd2-nc`, `g1-add-c` | `vadd` `{"da":2,"db":[1,2],"carry":"some","maxDigits":2}` |
+| `g2-vsub2-nb` | Trừ dọc hai chữ số | Cộng & trừ | `g1-sub-2d1` | `vsub` `{"da":2,"db":2,"borrow":"none"}` |
+| `g2-vsub2-b` | Trừ dọc có mượn | Cộng & trừ | `g2-vsub2-nb`, `g1-sub-b` | `vsub` `{"da":2,"db":[1,2],"borrow":"some"}` |
+| `g2-vadd3s` | Cộng vượt quá 100 | Cộng & trừ | `g2-vadd2-c` | `vadd` `{"da":2,"db":2,"carry":"many","maxDigits":3}` |
+| `g2-vsub3s` | Trừ từ 100 | Cộng & trừ | `g2-vsub2-b`, `g2-vadd3s` | `vsub` `{"da":3,"db":2,"borrow":"some","aMax":199}` |
+| `g2-kuku25` | Bảng nhân 5 và 2 | Nhân & chia | `g1-add-c` | `kuku` `{"dans":[5,2]}` |
+| `g2-kuku34` | Bảng nhân 3 và 4 | Nhân & chia | `g2-kuku25` | `kuku` `{"dans":[3,4]}` |
+| `g2-kuku67` | Bảng nhân 6 và 7 | Nhân & chia | `g2-kuku34` | `kuku` `{"dans":[6,7]}` |
+| `g2-kuku891` | Bảng nhân 8, 9 và 1 | Nhân & chia | `g2-kuku67` | `kuku` `{"dans":[8,9,1]}` |
+| `g2-kuku-mix` | Trộn các bảng nhân | Nhân & chia | `g2-kuku891` | `kuku` `{"dans":[1,2,3,4,5,6,7,8,9]}` |
+| `g2-mul-tens` | Số tròn chục × một chữ số | Nhân & chia | `g2-kuku-mix` | `mulTens` `{}` |
+| `g2-frac-of` | 1/2 và 1/4 của số | Số thập phân & phân số | `g2-kuku25` | `fracOf` `{"dens":[2,4]}` |
 
-### 3年生
+### Lớp 3
 
-| ID | 名前 | 系統 | 前提（すべて必要） | 生成器・パラメータ |
+| ID | Tên | Nhóm | Tiên quyết (cần tất cả) | Bộ sinh · tham số |
 | --- | --- | --- | --- | --- |
-| `g3-vadd3` | 3けたのたしざん | たし・ひき | `g2-vadd3s` | `vadd` `{"da":3,"db":3,"carry":"some","maxDigits":3}` |
-| `g3-vsub3` | 3けたのひきざん | たし・ひき | `g2-vsub3s` | `vsub` `{"da":3,"db":[2,3],"borrow":"some"}` |
-| `g3-vadd4` | 4けたのたしざん | たし・ひき | `g3-vadd3` | `vadd` `{"da":4,"db":[3,4],"carry":"many","maxDigits":4}` |
-| `g3-vsub4` | 4けたのひきざん | たし・ひき | `g3-vsub3` | `vsub` `{"da":4,"db":[3,4],"borrow":"zero"}` |
-| `g3-div-basic` | わりざん | かけ・わり | `g2-kuku-mix` | `div` `{"exact":true}` |
-| `g3-div-rem` | あまりのあるわりざん | かけ・わり | `g3-div-basic` | `divRem` `{}` |
-| `g3-div-tens` | 何十÷1けた | かけ・わり | `g3-div-basic` | `divTens` `{}` |
-| `g3-vmul-2x1` | 2けた×1けた ひっさん | かけ・わり | `g2-mul-tens` | `vmul` `{"da":2,"db":1}` |
-| `g3-vmul-3x1` | 3けた×1けた | かけ・わり | `g3-vmul-2x1` | `vmul` `{"da":3,"db":1}` |
-| `g3-vmul-2x2` | 2けた×2けた | かけ・わり | `g3-vmul-2x1` | `vmul` `{"da":2,"db":2}` |
-| `g3-vmul-3x2` | 3けた×2けた | かけ・わり | `g3-vmul-2x2`、`g3-vmul-3x1` | `vmul` `{"da":3,"db":2}` |
-| `g3-dec-add1` | 小数のたしざん | 小数・分数 | `g2-vadd2-c` | `vdec` `{"op":"add","places":1}` |
-| `g3-dec-sub1` | 小数のひきざん | 小数・分数 | `g3-dec-add1`、`g2-vsub2-b` | `vdec` `{"op":"sub","places":1}` |
-| `g3-frac-same` | 分数のたしひき | 小数・分数 | `g2-frac-of` | `frac` `{"op":"addsub","same":true,"maxOne":true}` |
+| `g3-vadd3` | Cộng dọc 3 chữ số | Cộng & trừ | `g2-vadd3s` | `vadd` `{"da":3,"db":3,"carry":"some","maxDigits":3}` |
+| `g3-vsub3` | Trừ dọc 3 chữ số | Cộng & trừ | `g2-vsub3s` | `vsub` `{"da":3,"db":[2,3],"borrow":"some"}` |
+| `g3-vadd4` | Cộng dọc 4 chữ số | Cộng & trừ | `g3-vadd3` | `vadd` `{"da":4,"db":[3,4],"carry":"many","maxDigits":4}` |
+| `g3-vsub4` | Trừ dọc 4 chữ số | Cộng & trừ | `g3-vsub3` | `vsub` `{"da":4,"db":[3,4],"borrow":"zero"}` |
+| `g3-div-basic` | Phép chia | Nhân & chia | `g2-kuku-mix` | `div` `{"exact":true}` |
+| `g3-div-rem` | Chia có dư | Nhân & chia | `g3-div-basic` | `divRem` `{}` |
+| `g3-div-tens` | Số tròn chục ÷ một chữ số | Nhân & chia | `g3-div-basic` | `divTens` `{}` |
+| `g3-vmul-2x1` | Hai chữ số × một chữ số dọc | Nhân & chia | `g2-mul-tens` | `vmul` `{"da":2,"db":1}` |
+| `g3-vmul-3x1` | Ba chữ số × một chữ số | Nhân & chia | `g3-vmul-2x1` | `vmul` `{"da":3,"db":1}` |
+| `g3-vmul-2x2` | Hai chữ số × hai chữ số | Nhân & chia | `g3-vmul-2x1` | `vmul` `{"da":2,"db":2}` |
+| `g3-vmul-3x2` | Ba chữ số × hai chữ số | Nhân & chia | `g3-vmul-2x2`, `g3-vmul-3x1` | `vmul` `{"da":3,"db":2}` |
+| `g3-dec-add1` | Cộng số thập phân | Số thập phân & phân số | `g2-vadd2-c` | `vdec` `{"op":"add","places":1}` |
+| `g3-dec-sub1` | Trừ số thập phân | Số thập phân & phân số | `g3-dec-add1`, `g2-vsub2-b` | `vdec` `{"op":"sub","places":1}` |
+| `g3-frac-same` | Cộng trừ phân số cùng mẫu | Số thập phân & phân số | `g2-frac-of` | `frac` `{"op":"addsub","same":true,"maxOne":true}` |
 
-### 4年生
+### Lớp 4
 
-| ID | 名前 | 系統 | 前提（すべて必要） | 生成器・パラメータ |
+| ID | Tên | Nhóm | Tiên quyết (cần tất cả) | Bộ sinh · tham số |
 | --- | --- | --- | --- | --- |
-| `g4-vdiv-2d1` | 2けた÷1けた ひっさん | かけ・わり | `g3-div-rem`、`g3-div-tens` | `vdiv` `{"dd":2,"ds":1}` |
-| `g4-vdiv-3d1` | 3けた÷1けた | かけ・わり | `g4-vdiv-2d1` | `vdiv` `{"dd":3,"ds":1}` |
-| `g4-vdiv-2d2` | 2けた÷2けた | かけ・わり | `g4-vdiv-2d1`、`g3-vmul-2x1` | `vdiv` `{"dd":2,"ds":2}` |
-| `g4-vdiv-3d2` | 3けた÷2けた | かけ・わり | `g4-vdiv-2d2`、`g4-vdiv-3d1` | `vdiv` `{"dd":3,"ds":2}` |
-| `g4-order` | けいさんのきまり | そのほか | `g2-kuku-mix`、`g2-vsub2-b` | `order` `{}` |
-| `g4-round` | がい数（四捨五入） | そのほか | `g3-vadd4` | `round` `{}` |
-| `g4-dec-add2` | 小数第2位のたしひき | 小数・分数 | `g3-dec-sub1` | `vdec` `{"op":"addsub","places":2}` |
-| `g4-dec-mul` | 小数×整数 | 小数・分数 | `g4-dec-add2`、`g3-vmul-2x1` | `vmul` `{"da":2,"db":1,"pa":1}` |
-| `g4-dec-div` | 小数÷整数 | 小数・分数 | `g4-dec-mul`、`g4-vdiv-2d1` | `decDivInt` `{}` |
-| `g4-frac-mixed` | 帯分数のたしひき | 小数・分数 | `g3-frac-same` | `frac` `{"op":"addsub","same":true,"mixed":true}` |
+| `g4-vdiv-2d1` | Hai chữ số ÷ một chữ số dọc | Nhân & chia | `g3-div-rem`, `g3-div-tens` | `vdiv` `{"dd":2,"ds":1}` |
+| `g4-vdiv-3d1` | Ba chữ số ÷ một chữ số | Nhân & chia | `g4-vdiv-2d1` | `vdiv` `{"dd":3,"ds":1}` |
+| `g4-vdiv-2d2` | Hai chữ số ÷ hai chữ số | Nhân & chia | `g4-vdiv-2d1`, `g3-vmul-2x1` | `vdiv` `{"dd":2,"ds":2}` |
+| `g4-vdiv-3d2` | Ba chữ số ÷ hai chữ số | Nhân & chia | `g4-vdiv-2d2`, `g4-vdiv-3d1` | `vdiv` `{"dd":3,"ds":2}` |
+| `g4-order` | Thứ tự tính | Khác | `g2-kuku-mix`, `g2-vsub2-b` | `order` `{}` |
+| `g4-round` | Số gần đúng và làm tròn | Khác | `g3-vadd4` | `round` `{}` |
+| `g4-dec-add2` | Cộng trừ đến chữ số thập phân thứ hai | Số thập phân & phân số | `g3-dec-sub1` | `vdec` `{"op":"addsub","places":2}` |
+| `g4-dec-mul` | Số thập phân × số nguyên | Số thập phân & phân số | `g4-dec-add2`, `g3-vmul-2x1` | `vmul` `{"da":2,"db":1,"pa":1}` |
+| `g4-dec-div` | Số thập phân ÷ số nguyên | Số thập phân & phân số | `g4-dec-mul`, `g4-vdiv-2d1` | `decDivInt` `{}` |
+| `g4-frac-mixed` | Cộng trừ hỗn số | Số thập phân & phân số | `g3-frac-same` | `frac` `{"op":"addsub","same":true,"mixed":true}` |
 
-### 5年生
+### Lớp 5
 
-| ID | 名前 | 系統 | 前提（すべて必要） | 生成器・パラメータ |
+| ID | Tên | Nhóm | Tiên quyết (cần tất cả) | Bộ sinh · tham số |
 | --- | --- | --- | --- | --- |
-| `g5-dec-mul` | 小数×小数 | 小数・分数 | `g4-dec-mul` | `vmul` `{"da":2,"db":2,"pa":1,"pb":1}` |
-| `g5-dec-div` | 小数÷小数 | 小数・分数 | `g4-dec-div`、`g5-dec-mul` | `decDivDec` `{}` |
-| `g5-gcd` | 最大公約数 | そのほか | `g3-div-basic` | `gcdlcm` `{"kind":"gcd"}` |
-| `g5-lcm` | 最小公倍数 | そのほか | `g5-gcd` | `gcdlcm` `{"kind":"lcm"}` |
-| `g5-frac-reduce` | 約分 | 小数・分数 | `g5-gcd`、`g4-frac-mixed` | `frac` `{"op":"reduce"}` |
-| `g5-frac-diff` | 分母がちがう分数 | 小数・分数 | `g5-frac-reduce`、`g5-lcm` | `frac` `{"op":"addsub","same":false}` |
-| `g5-frac-int` | 分数×÷整数 | 小数・分数 | `g5-frac-reduce` | `frac` `{"op":"muldivInt"}` |
-| `g5-percent` | 百分率 | そのほか | `g4-dec-mul` | `percent` `{}` |
+| `g5-dec-mul` | Số thập phân × số thập phân | Số thập phân & phân số | `g4-dec-mul` | `vmul` `{"da":2,"db":2,"pa":1,"pb":1}` |
+| `g5-dec-div` | Số thập phân ÷ số thập phân | Số thập phân & phân số | `g4-dec-div`, `g5-dec-mul` | `decDivDec` `{}` |
+| `g5-gcd` | Ước chung lớn nhất | Khác | `g3-div-basic` | `gcdlcm` `{"kind":"gcd"}` |
+| `g5-lcm` | Bội chung nhỏ nhất | Khác | `g5-gcd` | `gcdlcm` `{"kind":"lcm"}` |
+| `g5-frac-reduce` | Rút gọn phân số | Số thập phân & phân số | `g5-gcd`, `g4-frac-mixed` | `frac` `{"op":"reduce"}` |
+| `g5-frac-diff` | Phân số khác mẫu | Số thập phân & phân số | `g5-frac-reduce`, `g5-lcm` | `frac` `{"op":"addsub","same":false}` |
+| `g5-frac-int` | Phân số ×÷ số nguyên | Số thập phân & phân số | `g5-frac-reduce` | `frac` `{"op":"muldivInt"}` |
+| `g5-percent` | Phần trăm | Khác | `g4-dec-mul` | `percent` `{}` |
 
-### 6年生
+### Lớp 6
 
-| ID | 名前 | 系統 | 前提（すべて必要） | 生成器・パラメータ |
+| ID | Tên | Nhóm | Tiên quyết (cần tất cả) | Bộ sinh · tham số |
 | --- | --- | --- | --- | --- |
-| `g6-frac-mul` | 分数×分数 | 小数・分数 | `g5-frac-int` | `frac` `{"op":"mul"}` |
-| `g6-frac-div` | 分数÷分数 | 小数・分数 | `g6-frac-mul` | `frac` `{"op":"div"}` |
-| `g6-frac-dec` | 小数と分数のけいさん | 小数・分数 | `g6-frac-div`、`g5-dec-div` | `frac` `{"op":"decimal"}` |
-| `g6-ratio` | 等しい比 | そのほか | `g5-lcm` | `ratio` `{}` |
-| `g6-letter` | xをもとめる | そのほか | `g4-order` | `letter` `{}` |
+| `g6-frac-mul` | Phân số × phân số | Số thập phân & phân số | `g5-frac-int` | `frac` `{"op":"mul"}` |
+| `g6-frac-div` | Phân số ÷ phân số | Số thập phân & phân số | `g6-frac-mul` | `frac` `{"op":"div"}` |
+| `g6-frac-dec` | Tính với số thập phân và phân số | Số thập phân & phân số | `g6-frac-div`, `g5-dec-div` | `frac` `{"op":"decimal"}` |
+| `g6-ratio` | Tỉ số bằng nhau | Khác | `g5-lcm` | `ratio` `{}` |
+| `g6-letter` | Tìm x | Khác | `g4-order` | `letter` `{}` |
 
-## 3. 問題生成の条件
+## 3. Điều kiện tạo bài
 
-### 3.1 整数の横書き計算
+### 3.1 Phép tính ngang với số nguyên
 
-`compose` は10を1〜9と残りの数に分けます。`hadd` の `carry: none` はくり上がりなし、`yes` は少なくとも1回です。`hsub` は常に引く数が引かれる数より小さく、`borrow: none` はくり下がりなし、`yes` は少なくとも1回です。
+`compose` tách 10 thành một số từ 1–9 và phần còn lại. Trong `hadd`, `carry: none` nghĩa là không có nhớ, còn `yes` nghĩa là có ít nhất một lần nhớ. `hsub` luôn tạo số bị trừ nhỏ hơn số bị trừ đi; `borrow: none` nghĩa là không mượn, `yes` nghĩa là có ít nhất một lần mượn.
 
-`tensToo: true` は、通常の2桁と1桁の計算に加え、乱数が0.3未満の場合に何十同士の加減を生成します。加法は10〜80の10の倍数と、和が90以下となる正の10の倍数、減法は20〜90の10の倍数から、それより小さい正の10の倍数を引きます。そのため「2けた＋1けた」「2けた−1けた」という名前のスキルにも、両方が2桁の問題があります。
+`tensToo: true` bổ sung phép tính giữa hai số tròn chục khi số ngẫu nhiên nhỏ hơn 0,3. Phép cộng dùng bội số dương của 10 từ 10–80 sao cho tổng không quá 90; phép trừ lấy một bội số dương nhỏ hơn từ các số tròn chục 20–90. Vì vậy kỹ năng “hai chữ số + một chữ số” và “hai chữ số − một chữ số” đôi khi vẫn có hai số hạng đều là số có hai chữ số.
 
-`add3` は1〜9の3つの整数を使い、各演算を確率0.6で加法、それ以外は減法にします。最初の計算結果は0以上、最終結果は0〜20です。`kuku` は指定された段と1〜9を掛けます。`mulTens` は10〜90の10の倍数と2〜9の積です。
+`add3` dùng ba số nguyên 1–9; mỗi phép tính có xác suất 0,6 là cộng, còn lại là trừ. Kết quả trung gian không âm, kết quả cuối từ 0–20. `kuku` nhân một bảng được chỉ định với số từ 1–9. `mulTens` nhân số tròn chục 10–90 với số từ 2–9.
 
-`fracOf` は分母2または4、答え1〜9から元の整数を作ります。`div` は除数2〜9、商1〜9の割り切れる問題です。`divRem` は同じ範囲の商・除数に、1から除数未満の余りを加えます。
+`fracOf` tạo số ban đầu từ mẫu 2 hoặc 4 và đáp án từ 1–9. `div` tạo phép chia hết với số chia 2–9 và thương 1–9. `divRem` dùng cùng phạm vi cho thương và số chia, rồi thêm số dư từ 1 đến nhỏ hơn số chia.
 
-`divTens` は2種類です。何十を1桁で割って商が何十になる問題と、十の位・一の位をそれぞれ割り切れる2桁の問題を生成します。名前が「何十÷1けた」でも、被除数の一の位が0でない場合があります。
+`divTens` có hai dạng: chia số tròn chục cho một chữ số để được thương tròn chục, hoặc phép chia hai chữ số mà hàng chục và hàng đơn vị đều chia hết. Vì vậy tên “số tròn chục ÷ một chữ số” vẫn có thể xuất hiện số bị chia không kết thúc bằng 0.
 
-### 3.2 整数の筆算
+### 3.2 Phép tính dọc với số nguyên
 
-加法の `carry: some` はくり上がり1回以上、`many` は2回以上です。結果の桁数を `maxDigits` 以下に制限します。「百をこえるたしざん」は2桁同士で2回以上くり上がる条件です。
+Trong phép cộng, `carry: some` có ít nhất một lần nhớ, `many` có ít nhất hai lần. Kết quả được giới hạn không quá `maxDigits`. “Cộng vượt quá 100” dùng hai số có hai chữ số và điều kiện có ít nhất hai lần nhớ.
 
-減法は引く数が引かれる数より小さく、`borrow: some` はくり下がり1回以上です。「百からのひきざん」は100〜199から2桁を引きます。`borrow: zero` はくり下がり2回以上に加え、0をまたぐ場合、またはその追加抽選が0.3未満の場合を採用します。4桁のひき算すべてが0をまたぐとは限りません。
+Phép trừ luôn có số bị trừ lớn hơn số trừ; `borrow: some` có ít nhất một lần mượn. “Trừ từ 100” lấy một số có ba chữ số từ 100–199 rồi trừ số có hai chữ số. `borrow: zero` yêu cầu ít nhất hai lần mượn và đi qua số 0, hoặc được chọn thêm khi xác suất ngẫu nhiên nhỏ hơn 0,3. Không phải mọi phép trừ bốn chữ số đều đi qua 0.
 
-乗法は各数の桁数を指定します。1桁の乗数は2〜9、被乗数の一の位は0以外、2桁の乗数も一の位を0以外にします。小数乗法の場合は積の末尾が0になるものと、積が1未満になるものを除きます。
+Phép nhân chỉ định số chữ số của mỗi số. Số nhân một chữ số từ 2–9, chữ số hàng đơn vị của số bị nhân khác 0; số nhân hai chữ số cũng có hàng đơn vị khác 0. Với phép nhân số thập phân, loại các trường hợp tích kết thúc bằng 0 hoặc nhỏ hơn 1.
 
-除法の除数は1桁なら2〜9、2桁なら11〜49です。被除数は指定桁数で、除数の2倍以上とします。2桁÷2桁では商は1桁です。余りのある問題と割り切れる問題の両方が出ます。
+Số chia có một chữ số nằm trong 2–9, có hai chữ số nằm trong 11–49. Số bị chia có đúng số chữ số được chỉ định và ít nhất gấp đôi số chia. Với phép chia hai chữ số cho hai chữ số, thương là một chữ số. Cả phép chia hết và chia có dư đều có thể xuất hiện.
 
-### 3.3 小数
+### 3.3 Số thập phân
 
-`vdec` は整数化した数値を使って加減の筆算を作ります。`places: 1` では小数第1位、`places: 2` では小数第2位を扱い、後者は確率0.4で第2項だけ小数第1位にします。小数の末尾が0になる被演算数・結果を除き、減法の結果を正にします。
+`vdec` dùng các số đã nhân lên thành số nguyên để tạo phép cộng trừ dọc. `places: 1` xử lý đến chữ số thập phân thứ nhất; `places: 2` xử lý đến chữ số thứ hai và với xác suất 0,4, số hạng thứ hai chỉ có một chữ số thập phân. Loại các số hoặc kết quả có chữ số 0 ở cuối và luôn tạo kết quả trừ dương.
 
-`decDivInt` は除数2〜9、商1.1〜9.9のうち末尾0を除く小数第1位の問題です。`decDivDec` は除数0.2〜0.9または1.1〜2.9と、整数の商2〜9から問題を作ります。現在の「小数÷小数」の答えは整数です。どちらも横書きで答えを入力し、除法筆算の途中入力は行いません。
+`decDivInt` dùng số chia 2–9 và thương có một chữ số thập phân từ 1,1–9,9, trừ các giá trị kết thúc bằng 0. `decDivDec` dùng số chia 0,2–0,9 hoặc 1,1–2,9 và thương nguyên 2–9. Đáp án của “số thập phân ÷ số thập phân” hiện là số nguyên. Cả hai dạng đều nhập đáp án ngang, không nhập các bước trung gian của phép chia dọc.
 
-小数と分数の混合は、0.2・0.4・0.5・0.6・0.8のいずれかと、既約の真分数の乗法だけです。混合した加法・減法・除法は生成しません。
+Phần kết hợp số thập phân và phân số hiện chỉ là phép nhân giữa một trong các giá trị 0,2; 0,4; 0,5; 0,6; 0,8 với một phân số tối giản thực sự. Không tạo phép cộng, trừ hoặc chia dạng kết hợp này.
 
-### 3.4 分数
+### 3.4 Phân số
 
-同分母の分母は3〜12です。3年生の加減は、正で1未満になる結果だけを採用します。`maxOne: true` という名前ですが1ちょうどは除外します。元の分母を保ち、約分できる結果でもそのままの分子・分母を答えにします。
+Mẫu của phân số cùng mẫu nằm trong 3–12. Phép cộng trừ lớp 3 chỉ nhận kết quả dương nhỏ hơn 1. Dù tên tham số là `maxOne: true`, giá trị đúng bằng 1 bị loại. Giữ nguyên mẫu ban đầu; kể cả khi kết quả rút gọn được, đáp án vẫn dùng tử và mẫu ban đầu.
 
-帯分数では第1項の整数部分を1〜4、第2項を0〜3、分子を1から分母未満とします。正の結果で、整数にならず、残った分数部分が既約となる組み合わせを採用します。結果が1以上なら整数部分を含む帯分数で入力します。
+Với hỗn số, phần nguyên của số hạng đầu từ 1–4, phần nguyên của số hạng thứ hai từ 0–3, tử số từ 1 đến nhỏ hơn mẫu. Chỉ nhận kết quả dương, không phải số nguyên và có phần phân số tối giản. Nếu kết quả từ 1 trở lên, nhập cả phần nguyên.
 
-約分は既約の真分数（分母2〜9）の分子・分母へ2〜6の同じ整数を掛けて出題します。異分母の加減は分母2〜9の異なる既約真分数を使い、最小公倍数を36以下、結果を正で1未満に制限して約分します。
+Bài rút gọn nhân tử số và mẫu của một phân số thực sự tối giản (mẫu 2–9) với cùng một số nguyên từ 2–6. Phép cộng trừ khác mẫu dùng hai phân số thực sự tối giản khác mẫu, mẫu từ 2–9; bội chung nhỏ nhất không quá 36 và kết quả dương nhỏ hơn 1, sau đó rút gọn.
 
-分数と整数の乗除は、分母2〜9の既約真分数と2〜9の整数を使います。分数同士の乗除は分母2〜9、分子1〜9の既約分数を使い、整数になる結果を除き、約分後の分子・分母を99以下にします。1を超える結果は帯分数にします。
+Phép nhân chia phân số với số nguyên dùng phân số tối giản có mẫu 2–9 và số nguyên 2–9. Phép nhân chia hai phân số dùng phân số tối giản có mẫu và tử từ 1–9, loại kết quả là số nguyên và giới hạn tử/mẫu sau rút gọn không quá 99. Kết quả lớn hơn 1 được viết thành hỗn số.
 
-### 3.5 その他の計算
+### 3.5 Các phép tính khác
 
-`order` は `a＋b×c`、`a×(b＋c)`、`(a−b)×c`、`x−b×c` の4形式です。a・b・cは2〜9、最後の形式のxは積より1〜30大きい整数です。結果は正で999以下です。現在この生成器に除法は含まれません。
+`order` có bốn dạng: `a＋b×c`, `a×(b＋c)`, `(a−b)×c` và `x−b×c`. `a`, `b`, `c` từ 2–9; ở dạng cuối, `x` là số nguyên lớn hơn tích từ 1–30. Kết quả dương và không quá 999. Bộ sinh hiện không có phép chia.
 
-`round` は1001〜99999を、十・百・千のうち元の桁数に応じた位まで四捨五入します。結果の桁数が増える問題は除きます。`gcdlcm` は2〜9の共通因子に1〜6を掛けた2数を使い、両方4以上で異なる数、答え2〜99という条件で最大公約数・最小公倍数を出します。
+`round` làm tròn số từ 1001–99999 đến hàng chục, trăm hoặc nghìn tùy số chữ số ban đầu, loại các trường hợp làm tăng số chữ số. `gcdlcm` dùng hai số tạo từ một nhân tử chung 2–9 nhân với 1–6; hai số khác nhau, đều từ 4 trở lên, đáp án từ 2–99.
 
-`percent` の元の数は20・40・50・60・80・100・200・300・400・500、割合は5・10・20・25・30・40・50・60・75%です。結果が正の整数になる組み合わせだけを使います。
+`percent` dùng các số ban đầu 20, 40, 50, 60, 80, 100, 200, 300, 400, 500 và các tỉ lệ 5, 10, 20, 25, 30, 40, 50, 60, 75%. Chỉ chọn tổ hợp cho kết quả là số nguyên dương.
 
-`ratio` は異なる1〜9の比を簡単にし、両側を2〜9倍した等しい比の片方を空欄にします。比の値を別に求める形式はありません。`letter` は `x×a=b`、`x＋a=b`、`x−a=b` の形式で、xの数値を答えます。
+`ratio` rút gọn một tỉ số gồm hai số khác nhau từ 1–9, rồi nhân cả hai vế với 2–9 để tạo tỉ số bằng nhau và bỏ trống một phía. Không có dạng yêu cầu tính riêng giá trị tỉ số. `letter` có các dạng `x×a=b`, `x＋a=b`, `x−a=b` và yêu cầu nhập giá trị của x.
 
-### 3.6 重複の回避
+### 3.6 Tránh trùng lặp
 
-問題のタイトルと式を署名にし、スキルごとの直近24問と、そのプレイ中の署名を避けます。最大40回生成し、重複を避けられなければ最後の候補を使います。候補数が少ないスキルでも、一定問数の非重複を保証するものではありません。ふくしゅうとタイムカプセルは保存した問題をそのまま再利用します。
+Chữ ký gồm tiêu đề và biểu thức của bài. Bộ sinh tránh 24 bài gần nhất của từng kỹ năng và các chữ ký đã dùng trong lượt chơi hiện tại. Sau tối đa 40 lần thử, nếu vẫn không tránh được trùng lặp thì dùng ứng viên cuối. Kỹ năng có ít ứng viên không được bảo đảm số lượng bài không trùng. Ôn tập và hộp thời gian là ngoại lệ vì dùng lại bài đã lưu.
 
-## 4. 習熟・解放・モードの関係
+## 4. Quan hệ giữa thành thạo, mở khóa và chế độ
 
-通常のマスター条件は、6問以上解き、直近6問のうち5問以上を途中入力も含めて誤答なく完了することです。前提スキルをすべてマスターすると解放されます。一度の誤答でマスターを失うことはありません。マスター後の星・さび・記録削除の条件はゲーム全体の仕様書に記載しています。
+Điều kiện thạo thông thường là giải ít nhất 6 câu và trong 6 câu gần nhất có ít nhất 5 câu hoàn thành không sai, kể cả các bước trung gian. Khi tất cả kỹ năng tiên quyết đều thạo thì kỹ năng phụ thuộc được mở. Một lỗi đơn lẻ không làm mất trạng thái thạo. Điều kiện nhận sao, nguội và xóa thành tích sau khi thạo nằm trong đặc tả toàn trò chơi.
 
-初回のじぶんレベルは、学年と前提の深さで並べたスキルを飛びながら調べます。初回正解した出題対象とその前提を一括でマスターにするため、各スキルで6問解く通常条件とは異なります。
+Trình độ của mình lần đầu kiểm tra bằng cách nhảy qua các kỹ năng được sắp theo khối và độ sâu tiên quyết. Bài làm đúng ngay lần đầu cùng toàn bộ tiên quyết được thạo hàng loạt, khác với điều kiện thông thường phải giải 6 câu ở từng kỹ năng.
 
-学年別は解放状態を問わず選択学年から出題し、エクストラ7問目から次の学年へ切り替えます。6年生では同じ学年を続けます。れんしゅうは選んだスキルを基本問題に使います。条件を満たしたタイムカプセルは、学年別・れんしゅうの範囲外のスキルでも1問を置き換える場合があります。
+Chế độ theo khối lấy bài trong khối đã chọn bất kể trạng thái mở khóa, rồi từ câu thử thách thứ 7 chuyển sang khối tiếp theo. Ở lớp 6, tiếp tục dùng cùng khối. Luyện tập dùng kỹ năng đã chọn cho phần cơ bản. Hộp thời gian đủ điều kiện đôi khi thay thế một câu, kể cả khi kỹ năng nằm ngoài phạm vi của chế độ theo khối hoặc luyện tập.
 
-## 5. 入力と手がかり
+## 5. Nhập đáp án và gợi ý
 
-横書きの答えは左から1桁ずつ入力します。加減・乗法の筆算は最も下の位から、除法の筆算は商の上の位から進みます。商・途中の引き算の残り・次の商という順で、積と下ろす数字は自動で表示します。横書きの余り付き除法では商、余りの順です。
+Đáp án ngang được nhập từng chữ số từ trái sang phải. Phép cộng, trừ và nhân dọc đi từ hàng thấp nhất; phép chia dọc đi từ chữ số đầu của thương. Các bước hiển thị tự động gồm thương, phần còn lại của phép trừ trung gian và thương tiếp theo; tích và chữ số hạ xuống cũng tự động hiện. Với phép chia ngang có dư, nhập thương rồi số dư.
 
-分数は分母、分子の順で、帯分数はその前に整数部分を入力します。小数点とくり上がり・くり下がりの補助数字は自動表示します。回答は生成時に用意した数字列と一致するかをマスごとに判定し、等価な任意の式や分数表現は受け付けません。
+Phân số nhập mẫu trước, tử sau; hỗn số nhập phần nguyên trước. Dấu thập phân và chữ số nhớ/mượn phụ trợ tự động hiển thị. Hệ thống so sánh với chuỗi chữ số được chuẩn bị khi tạo bài theo từng ô; không chấp nhận mọi biểu thức hoặc cách viết phân số tương đương.
 
-同じマスで誤答を繰り返すと、参照する数字の強調と手がかりを出します。手がかりは途中式、数の分解、九九、通分の分母などで、計算結果の値を含む場合があります。
+Nếu lặp lại đáp án sai ở cùng ô, trò chơi sẽ nhấn mạnh các chữ số liên quan và đưa ra gợi ý. Gợi ý có thể là bước tính trung gian, cách tách số, bảng nhân hoặc mẫu số khi quy đồng, và đôi khi chứa cả giá trị kết quả.
