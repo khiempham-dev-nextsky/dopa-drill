@@ -2512,6 +2512,17 @@ function closeCredit() {
   (S.settingsOpen ? $('#open-credit') : $('#open-settings')).focus({ preventScroll: true });
 }
 let leaderboardRequest = 0;
+function playerInitials(value) {
+  const parts = String(value || 'Bạn chơi').trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return '?';
+  if (parts.length === 1) return Array.from(parts[0]).slice(0, 2).join('').toUpperCase();
+  return `${Array.from(parts[0])[0]}${Array.from(parts.at(-1))[0]}`.toUpperCase();
+}
+function playerHue(value) {
+  let hash = 0;
+  for (const ch of String(value || '')) hash = (hash * 31 + ch.codePointAt(0)) % 360;
+  return hash;
+}
 function renderLeaderboardRows(entries) {
   const list = $('#leaderboard-list');
   list.replaceChildren();
@@ -2523,18 +2534,34 @@ function renderLeaderboardRows(entries) {
     return;
   }
   entries.forEach((item, index) => {
+    const rankValue = Number(item.rank || index + 1);
+    const displayName = String(item.name || 'Bạn chơi');
     const row = document.createElement('li');
     row.className = `leaderboard-row${item.me ? ' me' : ''}`;
     const rank = document.createElement('span');
-    rank.className = 'leaderboard-rank';
-    rank.textContent = String(item.rank || index + 1);
+    rank.className = `leaderboard-rank${rankValue <= 3 ? ` rank-${rankValue}` : ''}`;
+    rank.textContent = String(rankValue);
+    const avatar = document.createElement('span');
+    avatar.className = 'leaderboard-avatar';
+    avatar.style.setProperty('--avatar-hue', String(playerHue(displayName)));
+    avatar.textContent = playerInitials(displayName);
+    const info = document.createElement('span');
+    info.className = 'leaderboard-player';
     const name = document.createElement('span');
     name.className = 'leaderboard-name';
-    name.textContent = String(item.name || 'Bạn chơi');
+    name.textContent = displayName;
+    info.append(name);
+    if (item.me) {
+      const you = document.createElement('small');
+      you.className = 'leaderboard-you';
+      you.textContent = 'Bạn';
+      info.append(you);
+    }
     const score = document.createElement('b');
     score.className = 'leaderboard-score';
-    score.textContent = `${Number(item.score || 0).toLocaleString('vi-VN')} điểm`;
-    row.append(rank, name, score);
+    score.textContent = Number(item.score || 0).toLocaleString('vi-VN');
+    score.setAttribute('aria-label', `${score.textContent} điểm`);
+    row.append(rank, avatar, info, score);
     list.append(row);
   });
 }
