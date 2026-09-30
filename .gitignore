@@ -5,3 +5,4 @@ public/game/
 *.log
 .env
 .env.*
+.vercel/
