@@ -2540,15 +2540,12 @@ function renderLeaderboardRows(entries) {
 }
 async function refreshLeaderboard() {
   const token = ++leaderboardRequest;
-  const button = $('#leaderboard-refresh');
   const status = $('#leaderboard-status');
   const me = $('#leaderboard-me');
-  button.disabled = true;
   status.textContent = 'Đang tải bảng xếp hạng…';
   me.hidden = true;
   const result = await lb.fetchLeaderboard({ playerId: store.playerId() });
   if (token !== leaderboardRequest) return;
-  button.disabled = false;
   if (!result.ok) {
     status.textContent = result.offline ? 'Chưa kết nối được bảng xếp hạng. Điểm của bạn vẫn được lưu trên máy.' : 'Bảng xếp hạng đang tạm nghỉ. Thử lại sau nhé.';
     renderLeaderboardRows([]);
@@ -2568,7 +2565,7 @@ function openLeaderboard() {
   audio.unlock();
   showScreen('leaderboard');
   void refreshLeaderboard();
-  requestAnimationFrame(() => $('#leaderboard-refresh').focus({ preventScroll: true }));
+  requestAnimationFrame(() => $('#leaderboard-back').focus({ preventScroll: true }));
 }
 
 function askReset() {
@@ -2638,7 +2635,6 @@ $('#cancel-player-name').addEventListener('click', () => closePlayerName());
 $('#edit-player-name').addEventListener('click', () => { closeSettings(); openPlayerName(); });
 $('#open-leaderboard').addEventListener('click', openLeaderboard);
 $('#leaderboard-back').addEventListener('click', () => { audio.play('blip', audio.now(), { m: 72, v: 0.08 }); toTitle(); });
-$('#leaderboard-refresh').addEventListener('click', () => { audio.unlock(); void refreshLeaderboard(); });
 $('#reset-data').addEventListener('click', askReset);
 $('#demo-play').addEventListener('click', startDemo);
 $('#bonus-ok').addEventListener('click', closeBonus);

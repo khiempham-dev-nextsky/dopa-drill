@@ -134,7 +134,6 @@ body.reduced .logo *, body.reduced .logo-burst { animation: none !important; }
 .name-error { margin: -8px 0 0; color: var(--red); font-size: 13px; font-weight: 900; text-align: left; }
 .name-cancel-btn { align-self: center; min-width: 180px; }
 .name-edit-btn { align-self: center; min-width: 180px; font-weight: 900; }
-.leaderboard-card .sub-btn { align-self: center; min-width: 190px; font-weight: 900; }
 .modal .pick { justify-content: center; }
 .modal .pick button { width: 30%; max-width: 96px; }
 .slider { -webkit-appearance: none; appearance: none; width: 100%; height: 34px; background: transparent; margin: 0; --v: 1; }
@@ -427,7 +426,6 @@ body.reduced .logo span, body.reduced .spot, body.reduced .marquee, body.reduced
 .leaderboard-row:nth-child(3) .leaderboard-rank { background: #efaa74; color: var(--ink); }
 .leaderboard-name { min-width: 0; overflow-wrap: anywhere; font-size: 14px; font-weight: 900; }
 .leaderboard-score { font-family: var(--chunky); font-size: 20px; color: var(--pink); white-space: nowrap; }
-.leaderboard-empty { padding: 18px; border: 2.5px dashed var(--ink); border-radius: 14px; font-size: 13px; font-weight: 900; text-align: center; opacity: .7; }
 /* ------------------------------------------------------------ skill tree */
 #screen-tree { flex-direction: column; padding: calc(10px + env(safe-area-inset-top)) 0 0; }
 .tree-head { display: flex; align-items: center; gap: 10px; padding: 0 14px 6px; }
