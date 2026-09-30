@@ -1,1 +1,51 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-110 -155 220 100"><g stroke="#000" stroke-width="5" stroke-linejoin="round"><ellipse cx="-74.2" cy="-105.3" rx="31" ry="31.3" fill="#ff97bf"/><ellipse cx="-74.2" cy="-105.3" rx="21.1" ry="22" fill="#ffe6f0"/><ellipse cx="74.2" cy="-105.3" rx="31" ry="31.3" fill="#ff97bf"/><ellipse cx="74.2" cy="-105.3" rx="21.1" ry="22" fill="#ffe6f0"/><path d="M-37.4 -65.7 C-49.7 -73.1 -56.3 -82.1 -56.3 -98.5 C-56.3 -129.6 -32.9 -149.2 0 -149.2 C32.9 -149.2 56.3 -129.6 56.3 -98.5 C56.3 -82.1 49.7 -73.1 37.4 -65.7 C20 -58 -20 -58 -37.4 -65.7Z" fill="#ff97bf"/><path d="M0 -133 C29.7 -133 48.2 -121.7 48.2 -96.5 C48.2 -71.3 25.7 -61.2 0 -61.2 C-25.7 -61.2 -48.2 -71.3 -48.2 -96.5 C-48.2 -121.7 -29.7 -133 0 -133Z" fill="#fff3e4"/><circle cx="-23.4" cy="-93.8" r="11.2" fill="#fff" stroke-width="3.5"/><circle cx="-23.4" cy="-93.8" r="8.6" fill="#ff97bf" stroke-width="3.5"/><circle cx="23.4" cy="-93.8" r="11.2" fill="#fff" stroke-width="3.5"/><circle cx="23.4" cy="-93.8" r="8.6" fill="#ff97bf" stroke-width="3.5"/><path d="M-8.1 -80.3 C-4.9 -76 4.9 -76 8.1 -80.3" fill="none" stroke-width="3.5" stroke-linecap="round"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="1024" height="1024" viewBox="267 306 1300 1300" role="img" aria-labelledby="title desc">
+  <title id="title">Dopa Drill</title>
+  <desc id="desc">Biểu tượng Dopakichi màu hồng trên nền xanh và kem.</desc>
+  <rect x="267" y="306" width="1300" height="1300" rx="260" fill="#fff3e4"/>
+  <circle cx="917" cy="956" r="592" fill="#3b6bff" stroke="#000" stroke-width="12"/>
+  <g id="foot-left" inkscape:groupmode="layer" inkscape:label="01 Chân trái" data-pivot="814 1282">
+    <path fill="#2F79F7" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" d="M810 1267 C779 1267 761 1281 735 1307 C713 1329 701 1343 718 1357 C742 1378 783 1376 816 1359 C850 1343 870 1319 850 1288 C840 1272 827 1267 810 1267Z"/>
+  </g>
+  <g id="foot-right" inkscape:groupmode="layer" inkscape:label="02 Chân phải" data-pivot="1020 1282">
+    <path fill="#2F79F7" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" d="M810 1267 C779 1267 761 1281 735 1307 C713 1329 701 1343 718 1357 C742 1378 783 1376 816 1359 C850 1343 870 1319 850 1288 C840 1272 827 1267 810 1267Z" transform="translate(1834 0) scale(-1 1)"/>
+  </g>
+  <g id="arm-left" inkscape:groupmode="layer" inkscape:label="03 Tay trái và bàn tay" data-pivot="774 1096">
+    <path fill="#FF97BF" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" d="M774 1083 C750 1097 728 1115 711 1135 L734 1153 C750 1134 767 1119 784 1110Z"/>
+    <ellipse id="hand-left" fill="#FF97BF" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" cx="707" cy="1177" rx="54" ry="55"/>
+  </g>
+  <g id="arm-right" inkscape:groupmode="layer" inkscape:label="04 Tay phải và bàn tay" data-pivot="1060 1096">
+    <path fill="#FF97BF" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" d="M1060 1083 C1084 1097 1106 1115 1123 1135 L1100 1153 C1084 1134 1067 1119 1050 1110Z"/>
+    <ellipse id="hand-right" fill="#FF97BF" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" cx="1127" cy="1177" rx="54" ry="55"/>
+  </g>
+  <g id="body" inkscape:groupmode="layer" inkscape:label="05 Thân và bụng" data-pivot="917 1130">
+    <path fill="#FF97BF" d="M709 1005 C752 1031 777 1069 777 1110 C777 1145 757 1174 757 1212 C757 1268 802 1295 857 1295 L977 1295 C1032 1295 1077 1268 1077 1212 C1077 1174 1057 1145 1057 1110 C1057 1069 1082 1031 1125 1005 L1125 952 L709 952Z"/>
+    <path fill="none" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" d="M709 1005 C752 1031 777 1069 777 1110 C777 1145 757 1174 757 1212 C757 1268 802 1295 857 1295 L977 1295 C1032 1295 1077 1268 1077 1212 C1077 1174 1057 1145 1057 1110 C1057 1069 1082 1031 1125 1005"/>
+    <ellipse fill="#FFF3E4" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" cx="917" cy="1192" rx="98.8854382" ry="75"/>
+  </g>
+  <g id="head" inkscape:groupmode="layer" inkscape:label="06 Đầu, tai và biểu cảm" data-pivot="917 1005">
+    <g id="ear-left" inkscape:groupmode="layer" inkscape:label="Tai trái" data-pivot="625 785">
+      <ellipse fill="#FF97BF" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" cx="505" cy="785" rx="172" ry="174"/>
+      <ellipse fill="#FFE6F0" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" cx="505" cy="785" rx="117" ry="122"/>
+    </g>
+    <g id="ear-right" inkscape:groupmode="layer" inkscape:label="Tai phải" data-pivot="1209 785">
+      <ellipse fill="#FF97BF" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" cx="1329" cy="785" rx="172" ry="174"/>
+      <ellipse fill="#FFE6F0" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" cx="1329" cy="785" rx="117" ry="122"/>
+    </g>
+    <path fill="#FF97BF" d="M709 1005 C641 964 604 914 604 823 C604 650 734 541 917 541 C1100 541 1230 650 1230 823 C1230 914 1193 964 1125 1005 L917 980Z"/>
+    <path fill="none" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" d="M709 1005 C641 964 604 914 604 823 C604 650 734 541 917 541 C1100 541 1230 650 1230 823 C1230 914 1193 964 1125 1005"/>
+    <path fill="#FFF3E4" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" d="M917 631 C1082 631 1185 694 1185 834 C1185 974 1060 1030 917 1030 C774 1030 649 974 649 834 C649 694 752 631 917 631Z"/>
+    <g id="eye-left" inkscape:groupmode="layer" inkscape:label="Mắt trái" data-pivot="787 849">
+      <ellipse fill="#FFF" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" cx="787" cy="849" rx="62" ry="62"/>
+      <ellipse fill="#FF97BF" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" cx="787" cy="849" rx="48" ry="48"/>
+    </g>
+    <g id="eye-right" inkscape:groupmode="layer" inkscape:label="Mắt phải" data-pivot="1047 849">
+      <ellipse fill="#FFF" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" cx="1047" cy="849" rx="62" ry="62"/>
+      <ellipse fill="#FF97BF" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" cx="1047" cy="849" rx="48" ry="48"/>
+    </g>
+    <ellipse fill="#FF97BF" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" cx="842" cy="752" rx="17" ry="10"/>
+    <ellipse fill="#FF97BF" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" cx="992" cy="752" rx="17" ry="10"/>
+    <ellipse fill="#FFE6F0" cx="747" cy="934" rx="24" ry="15"/>
+    <ellipse fill="#FFE6F0" cx="1087" cy="934" rx="24" ry="15"/>
+    <path fill="none" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" d="M872 924 C890 948 944 948 962 924"/>
+  </g>
+</svg>

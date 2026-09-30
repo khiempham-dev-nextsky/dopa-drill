@@ -1,13 +1,15 @@
-const CACHE = 'dopa-drill-next-v4';
+const CACHE = 'dopa-drill-next-v5';
 const CORE = [
   '/',
   '/offline.html',
   '/manifest.webmanifest',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/icon-maskable-192.png',
+  '/icon-maskable-512.png',
   '/game/index.html',
   '/game/style.css',
   '/game/icon.svg',
-  '/game/fonts/baloo-2.woff2',
-  '/game/fonts/nunito.woff2',
   '/game/js/audio.js',
   '/game/js/bg.js',
   '/game/js/core.js',
