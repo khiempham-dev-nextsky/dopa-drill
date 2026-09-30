@@ -6,3 +6,4 @@ public/game/
 .env
 .env.*
 .vercel/
+.omp/

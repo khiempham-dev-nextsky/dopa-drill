@@ -1,0 +1,7 @@
+.env
+.env.*
+.omp/
+.vercel/
+.git/
+.next/
+node_modules/
