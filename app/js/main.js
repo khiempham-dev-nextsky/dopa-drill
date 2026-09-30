@@ -81,7 +81,7 @@ function layoutActors() {
   // Cancel any running body action so it does not drag the hero back to old coordinates.
   hero.begin();
   let r;
-  if (S.settingsOpen || S.bonusOpen || S.confirm || S.hammerOpen || S.trophyOpen || S.skillInfo) {
+  if (S.creditOpen || S.settingsOpen || S.bonusOpen || S.confirm || S.hammerOpen || S.trophyOpen || S.skillInfo) {
     const c = $(S.creditOpen ? '#credit .modal-card' : S.bonusOpen ? '#bonus .modal-card' : S.confirm ? '#confirm .modal-card' : S.hammerOpen ? '#hammer .modal-card' : S.trophyOpen ? '#trophy-got .modal-card' : S.skillInfo ? '#skill-info .modal-card' : '#settings .modal-card').getBoundingClientRect();
     hero.S = 0.5; hero.place(c.left + c.width * 0.78, c.top + 4); hero.lift = 0; hero.rot = 0;
     return;
@@ -2033,6 +2033,7 @@ function titleTrophies() {
   const ts = trophyState();
   // Shown only if the player is still on the title; otherwise they wait for the next chance.
   if (S.trophyQueue.length || (ts.batch && ts.batch.length)) setTimeout(() => { if (S.screen === 'title' && !S.bonusOpen && !S.hammerOpen && !S.scene && !S.settingsOpen && !S.confirm && !S.demo && !S.guideOpen) openTrophies(); }, 450);
+  else setTimeout(maybeShowFirstCredit, 450);
 }
 function refreshTrophyBadge() { $('#trophy-badge').textContent = `${tr.earnedCount(trophyState())}/${tr.TROPHIES.length}`; }
 
@@ -2077,7 +2078,7 @@ function closeTrophies() {
   audio.play('blip', audio.now(), { m: 76, v: 0.1 });
   refreshTrophyBadge();
   requestAnimationFrame(layoutActors);
-  if (S.trophyQueue.length) setTimeout(openTrophies, 300);
+  if (S.trophyQueue.length) setTimeout(openTrophies, 300); else setTimeout(maybeShowFirstCredit, 300);
 }
 
 // The list screen: one card per series, folded; filters for earned / not yet.
@@ -2402,8 +2403,21 @@ function closeSettings() {
   // Trophies held back while the panel was open.
   if (S.screen === 'title' && !S.demo) titleTrophies();
 }
-function openCredit() {
-  if (S.demo || !S.settingsOpen || S.creditOpen) return;
+const CREDIT_SEEN_KEY = 'dopa-drill:credit-seen:v1';
+function creditWasSeen() {
+  try { return localStorage.getItem(CREDIT_SEEN_KEY) === '1'; } catch { return true; }
+}
+function markCreditSeen() {
+  try { localStorage.setItem(CREDIT_SEEN_KEY, '1'); } catch {}
+}
+function maybeShowFirstCredit() {
+  if (creditWasSeen() || params.has('skill') || params.has('demo') || params.has('capture')) return;
+  if (S.screen !== 'title' || S.guideOpen || S.settingsOpen || S.creditOpen || S.bonusOpen || S.hammerOpen || S.trophyOpen || S.confirm || S.scene) return;
+  openCredit({ automatic: true });
+}
+function openCredit({ automatic = false } = {}) {
+  if (S.demo || S.screen !== 'title' || S.creditOpen || (!automatic && !S.settingsOpen)) return;
+  markCreditSeen();
   const m = $('#credit');
   m.hidden = false;
   S.creditOpen = true;
@@ -2418,7 +2432,7 @@ function closeCredit() {
   S.creditOpen = false;
   audio.play('blip', audio.now(), { m: 72, v: 0.08 });
   requestAnimationFrame(layoutActors);
-  $('#open-credit').focus({ preventScroll: true });
+  (S.settingsOpen ? $('#open-credit') : $('#open-settings')).focus({ preventScroll: true });
 }
 
 function askReset() {
