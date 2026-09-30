@@ -533,7 +533,7 @@ const GEN = {
     const [x, y] = reduce(a, b); const k = r(2, 9);
     const hideLeft = rng() < 0.5;
     const toks = hideLeft ? [{ n: x }, { op: '：' }, { n: y }, { op: '＝' }, { ans: x * k }, { op: '：' }, { n: y * k }] : [{ n: x }, { op: '：' }, { n: y }, { op: '＝' }, { n: x * k }, { op: '：' }, { ans: y * k }];
-    return buildH(toks, { title: 'Tỉ số', text: `${x}:${y}`, answer: String(hideLeft ? x * k : y * k), help: `${k} lần` });
+    return buildH(toks, { title: 'Tỉ số', text: `${x}:${y}`, answer: String(hideLeft ? x * k : y * k), help: `Nhân cả hai số với ${k}` });
   },
   letter(rng) {
     const r = R(rng);
