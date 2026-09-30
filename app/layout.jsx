@@ -1,4 +1,5 @@
 import './globals.css';
+import GoogleAnalytics from './google-analytics';
 import PwaRegister from './pwa-register';
 
 export const metadata = {
@@ -19,6 +20,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="vi">
       <body>
+        <GoogleAnalytics />
         <PwaRegister />
         {children}
       </body>

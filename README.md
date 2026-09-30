@@ -46,6 +46,17 @@ npm run build
 npm start
 ```
 
+### Google Analytics 4
+
+Đặt `NEXT_PUBLIC_GA_MEASUREMENT_ID` trong biến môi trường triển khai để bật GA4:
+
+```bash
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+```
+
+ID này được nhúng lúc build; nếu bỏ trống hoặc sai định dạng `G-...`, ứng dụng không tải script analytics.
+
+
 `npm run dev` và `npm run build` tự đồng bộ game legacy từ `app/` sang `public/game/`. Thư mục `public/game/` là output sinh tự động và không cần commit.
 
 ## PWA và offline
