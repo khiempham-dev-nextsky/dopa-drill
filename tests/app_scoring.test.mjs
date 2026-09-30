@@ -40,7 +40,7 @@ test('combo multiplier rises evenly to x2.0 at 20 and stays there (id046)', () =
   assert.ok(!comboMaxed(19) && comboMaxed(20));
   const plain = run({ extras: 5, combo: false }); const full = run({ extras: 5 });
   assert.ok(full.afterBasic > plain.afterBasic && full.L > plain.L);
-  assert.ok(full.afterBasic > 3.8 && full.afterBasic < 4.1, `basic with combo: ${fmtDopa(full.afterBasic)}`); // about 1 vạn
+  assert.ok(full.afterBasic > 3.8 && full.afterBasic < 4.1, `basic with combo: ${fmtDopa(full.afterBasic)}`); // about 10.000
 });
 
 test('even a very fast full-combo run stays at a few hundred million and never passes the ceiling (id046)', () => {
@@ -64,13 +64,15 @@ test('basic curve rises monotonically from small numbers', () => {
   assert.equal(fmtDopa(basicDopaL(0.5)), Math.round(10 ** basicDopaL(0.5)).toLocaleString('vi-VN'));
 });
 
-test('milestone units below vạn', () => {
+test('milestone labels use numeric notation', () => {
   assert.equal(unitOf(1.9), '');
   assert.equal(unitOf(2.1), 'trăm');
   assert.equal(unitOf(3.5), 'nghìn');
-  assert.equal(unitOf(4.5), 'vạn');
-  assert.equal(unitOf(6.2), '100 vạn');
-  assert.equal(unitLabel('1.000 vạn'), '10.000.000');
+  assert.equal(fmtDopa(4), '10.000');
+  assert.equal(fmtDopa(6), '1.000.000');
+  assert.equal(unitOf(4.5), '10.000');
+  assert.equal(unitOf(6.2), '1.000.000');
+  assert.equal(unitLabel('10.000.000'), '10.000.000');
   assert.equal(unitOf(8.3), 'trăm triệu');
   assert.equal(unitLabel('trăm'), '100');
   assert.equal(unitLabel('trăm triệu'), '100.000.000');

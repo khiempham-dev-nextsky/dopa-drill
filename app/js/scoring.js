@@ -50,13 +50,13 @@ export function comboWindowMs(grade = 3, first = false) {
 // Milestones worth a bigger show: 10, 20, 30, 50, 75, 100, then every 50.
 export const comboMilestone = (c) => [10, 20, 30, 50, 75].includes(c) || (c >= 100 && c % 50 === 0);
 
-const UNITS = [[68, '×10^68'], [64, '×10^64'], [60, '×10^60'], [56, '×10^56'], [52, '×10^52'], [48, '×10^48'], [44, '×10^44'], [40, '×10^40'], [36, '×10^36'], [32, '×10^32'], [28, '×10^28'], [24, '×10^24'], [20, '×10^20'], [16, '×10^16'], [12, 'nghìn tỷ'], [8, 'trăm triệu'], [4, 'vạn']];
-// Milestones below vạn are celebrated but not used as display units.
+const UNITS = [[68, '×10^68'], [64, '×10^64'], [60, '×10^60'], [56, '×10^56'], [52, '×10^52'], [48, '×10^48'], [44, '×10^44'], [40, '×10^40'], [36, '×10^36'], [32, '×10^32'], [28, '×10^28'], [24, '×10^24'], [20, '×10^20'], [16, '×10^16'], [12, 'nghìn tỷ'], [8, 'trăm triệu']];
+// Values from 10.000 through 10.000.000 stay in Vietnamese numeric notation.
 const MILESTONES = [[3, 'nghìn'], [2, 'trăm']];
 
 export function fmtDopa(L) {
   if (!Number.isFinite(L) || L >= 72) return '∞';
-  if (L < 4) return Math.round(10 ** L).toLocaleString('vi-VN');
+  if (L < 8) return Math.round(10 ** L).toLocaleString('vi-VN');
   const u = UNITS.find(([e]) => L >= e - 1e-9);
   const m = 10 ** (L - u[0]);
   return (m < 10 ? m.toFixed(1).replace('.', ',') : String(Math.floor(m))) + ` ${u[1]}`;
@@ -64,8 +64,8 @@ export function fmtDopa(L) {
 
 export function unitOf(L) {
   if (L >= 72) return '∞';
-  // Between vạn and trăm triệu, each extra digit is its own milestone.
-  if (L >= 4 && L < 8) return ['vạn', '10 vạn', '100 vạn', '1.000 vạn'][Math.floor(L + 1e-9) - 4];
+  // Each milestone from 10.000 through 10.000.000 is shown as a number.
+  if (L >= 4 && L < 8) return ['10.000', '100.000', '1.000.000', '10.000.000'][Math.floor(L + 1e-9) - 4];
   const u = UNITS.find(([e]) => L >= e - 1e-9) || MILESTONES.find(([e]) => L >= e - 1e-9);
   return u ? u[1] : '';
 }
@@ -74,10 +74,10 @@ const LABELS = {
   '∞': '∞',
   trăm: '100',
   nghìn: '1.000',
-  vạn: '10.000',
-  '10 vạn': '100.000',
-  '100 vạn': '1.000.000',
-  '1.000 vạn': '10.000.000',
+  '10.000': '10.000',
+  '100.000': '100.000',
+  '1.000.000': '1.000.000',
+  '10.000.000': '10.000.000',
   'trăm triệu': '100.000.000',
   'nghìn tỷ': '1.000.000.000.000',
 };

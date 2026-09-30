@@ -139,7 +139,7 @@ L mới = min(9.08, L + max(0.003, lượng tăng cơ bản) × M(c))
 
 10 combo tương đương hệ số 1,5; từ 20 combo là 2. Trần logarit là 9,08, tương đương chính xác `10^9.08` khi hiển thị. Vì lượng tăng tối thiểu là 0,003, giá trị đạt thực tế không chỉ phụ thuộc điểm cuối của đường cong. Câu đúng đầu tiên đã là combo 1 và hệ số 1,05; khi vào màn thử thách, combo về 0 nhưng Dopa được giữ.
 
-Giá trị dưới 10.000 được làm tròn thành số nguyên; từ đó dùng các đơn vị “vạn”, “trăm triệu” và “nghìn tỷ”. Nếu phần giá trị trong một đơn vị nhỏ hơn 10, hiển thị một chữ số thập phân; từ 10 trở lên cắt phần thập phân. Các mốc 100, 1.000, 10.000, 100.000, 1.000.000, 10.000.000 và 100.000.000 có hiệu ứng riêng. Trong lượt chơi thông thường, Dopa không đạt đến hàng nghìn tỷ.
+Giá trị dưới 100.000.000 được làm tròn thành số nguyên và hiển thị theo định dạng số Việt Nam. Từ đó dùng các đơn vị “trăm triệu” và “nghìn tỷ”. Nếu phần giá trị trong một đơn vị nhỏ hơn 10, hiển thị một chữ số thập phân; từ 10 trở lên cắt phần thập phân. Các mốc 100, 1.000, 10.000, 100.000, 1.000.000, 10.000.000 và 100.000.000 có hiệu ứng riêng. Trong lượt chơi thông thường, Dopa không đạt đến hàng nghìn tỷ.
 
 ### 5.3 Thời gian và hiển thị combo
 
