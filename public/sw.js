@@ -1,4 +1,4 @@
-const CACHE = 'dopa-drill-next-v2';
+const CACHE = 'dopa-drill-next-v3';
 const CORE = [
   '/',
   '/offline.html',
