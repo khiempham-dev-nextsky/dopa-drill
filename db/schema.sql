@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS dopa_sync (
+  device_id TEXT PRIMARY KEY,
+  state JSONB NOT NULL,
+  client_updated_at BIGINT NOT NULL DEFAULT 0,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

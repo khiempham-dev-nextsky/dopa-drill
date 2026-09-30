@@ -2597,3 +2597,7 @@ startClock();
 document.fonts.ready.then(layoutActors);
 layoutActors();
 Object.assign(window.__dopa, { hanamaru, applyLook, fx, fxBack, bg, hero, actors, crowd, press, startGame, startExtra, fmtDopa, store, progress, stats, quests, trophyState, checkTrophies });
+// Neon sync is write-behind; localStorage remains the offline source of truth.
+store.startSync({ onRemote: () => {
+  if (S.screen === 'title') { refreshTitle(); renderCalendar(); }
+}});

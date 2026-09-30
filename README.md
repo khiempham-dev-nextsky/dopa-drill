@@ -1,48 +1,82 @@
 # Dopa Drill
 
-Dopa Drill là trò luyện tính nhẩm, trong đó mỗi câu trả lời làm phần trình diễn và âm nhạc sôi động hơn. Trò chơi chạy hoàn toàn trong trình duyệt.
-
-Linh vật Dopakichi mang các chữ số bạn nhập; trả lời đúng sẽ được chúc mừng. Càng giải nhiều câu, màn hình và âm thanh càng phong phú, rồi kết thúc như một lễ hội. Trả lời sai không làm mất đà và không có trạng thái game over.
+Dopa Drill là trò luyện tính nhẩm cho lớp 1–6. Mỗi câu trả lời làm phần trình diễn, hiệu ứng và âm thanh sôi động hơn. Giao diện đã được Việt hóa và chạy trong Next.js.
 
 ## Tính năng
 
-- 58 kỹ năng tính toán cho lớp 1–6: cộng, trừ, nhân, chia, nhập từng bước của phép tính dọc, số thập phân, phân số, phần trăm và các nội dung liên quan.
-- Chế độ **Trình độ của mình**: bắt đầu bằng kiểm tra năng lực, sau đó mở khóa kỹ năng tiếp theo theo tiến độ.
-- Chế độ theo khối, luyện tập, ôn tập và cây kỹ năng.
-- Hoàn thành toàn bộ câu cơ bản được 100 điểm. Nếu tỷ lệ đúng ngay lần đầu từ 80%, bạn có thể vào màn thử thách có giới hạn thời gian để vượt 100 điểm.
-- Nhạc và hiệu ứng âm thanh đều được tổng hợp bằng Web Audio API, không dùng tệp âm thanh.
-- Hỗ trợ màn hình dọc trên điện thoại và máy tính. Trên máy tính có thể nhập bằng phím số và Backspace.
-- Có thể điều chỉnh mức độ chuyển động và tắt âm thanh trong phần cài đặt.
-- Thành tích được lưu trong thiết bị bằng `localStorage`, không gửi ra bên ngoài.
+- 58 kỹ năng tính toán cho lớp 1–6: cộng, trừ, nhân, chia, số thập phân, phân số, phần trăm và các nội dung liên quan.
+- Chế độ **Trình độ của mình**, theo khối, luyện tập, ôn tập và cây kỹ năng.
+- Thành tích, nhiệm vụ, cúp, bộ sưu tập và phần thưởng được lưu cục bộ để chơi offline.
+- Đồng bộ write-behind lên Neon PostgreSQL khi có `DATABASE_URL` và mạng. Không có Neon hoặc mất mạng thì game vẫn chạy đầy đủ bằng `localStorage`.
+- PWA có manifest và service worker; sau lần mở online đầu tiên, game có thể khởi chạy và chơi ngoại tuyến.
+- Font Baloo 2 cho chữ số/phép tính và Nunito cho văn bản giao diện.
+- Web Audio API tổng hợp âm thanh, không cần tệp âm thanh.
 
-## Chạy cục bộ
+## Chạy cục bộ bằng Next.js
 
-Không cần build. Chỉ cần phân phối tĩnh thư mục `app/`:
+Cần Node.js 20.9 trở lên.
 
 ```bash
-python3 -m http.server 8000 -d app
+npm install
+npm run dev
 ```
 
-Mở `http://localhost:8000/` trong trình duyệt. Vì ứng dụng dùng ES Modules, mở trực tiếp bằng `file://` sẽ không hoạt động.
+Mở [http://localhost:3000](http://localhost:3000).
+
+### Neon PostgreSQL
+
+Tạo project trên Neon, sao chép biến môi trường mẫu và điền connection string:
+
+```bash
+cp .env.example .env.local
+# sửa DATABASE_URL trong .env.local
+npm run db:migrate
+```
+
+API đồng bộ nằm tại `app/api/sync/route.js`. Dữ liệu được định danh bằng một ID thiết bị ẩn danh trong localStorage; tính năng này không phải hệ thống tài khoản hay xác thực người dùng. Chỉ nên đồng bộ dữ liệu không nhạy cảm.
+
+Nếu bỏ qua `DATABASE_URL` hoặc migration, phần Neon trả về trạng thái offline và ứng dụng tiếp tục dùng lưu trữ cục bộ.
+
+### Build production
+
+```bash
+npm run build
+npm start
+```
+
+`npm run dev` và `npm run build` tự đồng bộ game legacy từ `app/` sang `public/game/`. Thư mục `public/game/` là output sinh tự động và không cần commit.
+
+## PWA và offline
+
+- `public/manifest.webmanifest`: metadata cài đặt PWA.
+- `public/sw.js`: cache shell Next, game, JavaScript và font; không cache API Neon.
+- `public/offline.html`: fallback khi không có shell đã cache.
+- `app/js/store.js`: local-first, ghi local trước rồi đồng bộ Neon sau; mất mạng không chặn lượt chơi.
+
+Cần mở ứng dụng online ít nhất một lần để service worker cache toàn bộ game trước khi thử khởi chạy hoàn toàn offline.
 
 ## Kiểm thử
 
-Cần Node.js 20 trở lên:
-
 ```bash
-node --test tests/*.test.mjs
+npm test
 ```
+
+Bộ test hiện tại bao phủ tạo bài, chấm điểm, lưu trữ, tiến bộ, nhiệm vụ, cúp và các quy tắc game.
 
 ## Cấu trúc
 
 | Đường dẫn | Nội dung |
 | --- | --- |
-| `app/` | Trò chơi chính, dùng ES Modules và không có thư viện phụ thuộc |
+| `app/` | App Router Next.js và mã nguồn game legacy |
+| `app/js/` | Gameplay, tạo bài, tiến bộ, lưu trữ và hiệu ứng |
+| `app/fonts/` | Font subset Baloo 2 và Nunito |
+| `app/api/sync/route.js` | API ghi/đọc state với Neon |
+| `db/schema.sql` | Schema bảng đồng bộ Neon |
+| `public/sw.js` | Service worker PWA |
+| `scripts/sync-game.mjs` | Đồng bộ game vào static output của Next |
 | `docs/SPEC.md` | Đặc tả hành vi |
-| `docs/curriculum.md` | Chương trình theo khối và thiết kế cây kỹ năng |
-| `docs/dopakichi.svg` | Tài liệu hình mẫu của Dopakichi |
+| `docs/curriculum.md` | Chương trình theo khối và cây kỹ năng |
 | `tests/` | Kiểm thử đơn vị |
-| `tools/build_fonts.sh` | Tạo lại font subset khi thêm chữ hiển thị |
 
 ## Giấy phép
 

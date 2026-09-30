@@ -1,0 +1,19 @@
+{
+  "name": "Dopa Drill",
+  "short_name": "Dopa Drill",
+  "description": "Bài luyện toán tương tác cho lớp 1–6.",
+  "lang": "vi",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff8ec",
+  "theme_color": "#3b6bff",
+  "icons": [
+    {
+      "src": "/game/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

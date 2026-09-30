@@ -1,4 +1,4 @@
-// Local-only persistence (localStorage). Nothing is sent to a server.
+// Local-first persistence with optional server sync. Offline gameplay never waits on the network.
 // Every read tolerates missing, blocked, or corrupted storage.
 
 const KEY = 'dopa-drill:v1';
@@ -18,6 +18,111 @@ function backend() {
 }
 
 let cache = null;
+const SYNC_KEY = 'dopa-drill:sync:v1';
+const SYNC_DELAY = 800;
+const sync = { active: false, endpoint: '/api/sync', deviceId: null, timer: 0, dirty: false, inFlight: false, applying: false, onRemote: null };
+
+function newDeviceId() {
+  try { if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID(); } catch {}
+  return `dopa-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+}
+function readSyncMeta(storage = backend()) {
+  try {
+    const data = JSON.parse(storage?.getItem(SYNC_KEY) || 'null');
+    if (data && typeof data === 'object') return { deviceId: data.deviceId || null, updatedAt: Number(data.updatedAt) || 0 };
+  } catch {}
+  return { deviceId: null, updatedAt: 0 };
+}
+function writeSyncMeta(storage, meta) {
+  try { storage?.setItem(SYNC_KEY, JSON.stringify(meta)); } catch {}
+}
+function ensureDeviceId(storage) {
+  const meta = readSyncMeta(storage);
+  if (!meta.deviceId) { meta.deviceId = newDeviceId(); writeSyncMeta(storage, meta); }
+  sync.deviceId = meta.deviceId;
+  return meta;
+}
+function syncUrl() {
+  const origin = globalThis.location?.origin;
+  if (!origin || origin === 'null') return null;
+  return /^https?:\/\//.test(sync.endpoint) ? sync.endpoint : `${origin}${sync.endpoint}`;
+}
+function offline() {
+  return typeof navigator !== 'undefined' && navigator.onLine === false;
+}
+function queueSync() {
+  if (!sync.active || sync.applying) return;
+  sync.dirty = true;
+  clearTimeout(sync.timer);
+  sync.timer = setTimeout(() => { sync.timer = 0; void pushRemote(); }, SYNC_DELAY);
+}
+function applyRemote(state, updatedAt) {
+  const storage = backend();
+  if (!storage || !state || state.version !== VERSION) return false;
+  sync.applying = true;
+  try {
+    cache = state;
+    storage.setItem(KEY, JSON.stringify(state));
+    const meta = readSyncMeta(storage);
+    writeSyncMeta(storage, { deviceId: meta.deviceId || sync.deviceId, updatedAt });
+  } catch {
+    return false;
+  } finally {
+    sync.applying = false;
+  }
+  try { sync.onRemote?.(); } catch {}
+  return true;
+}
+async function pullRemote() {
+  if (!sync.active || offline()) return;
+  const storage = backend();
+  const meta = ensureDeviceId(storage);
+  const base = syncUrl();
+  if (!storage || !base || typeof fetch !== 'function') return;
+  try {
+    const res = await fetch(`${base}?deviceId=${encodeURIComponent(meta.deviceId)}`, { cache: 'no-store', headers: { Accept: 'application/json' } });
+    if (!res.ok) return;
+    const remote = await res.json();
+    const remoteUpdated = Number(remote.clientUpdatedAt) || 0;
+    if (remote.state && remoteUpdated > meta.updatedAt) applyRemote(remote.state, remoteUpdated);
+    else if (meta.updatedAt > remoteUpdated) queueSync();
+  } catch {}
+}
+async function pushRemote() {
+  if (!sync.active || sync.applying || sync.inFlight || !sync.dirty || offline()) return;
+  const storage = backend();
+  const meta = ensureDeviceId(storage);
+  const base = syncUrl();
+  if (!storage || !base || typeof fetch !== 'function') return;
+  sync.dirty = false;
+  sync.inFlight = true;
+  try {
+    const res = await fetch(base, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ deviceId: meta.deviceId, clientUpdatedAt: meta.updatedAt, state: load(storage) }),
+    });
+    if (res.status === 409) {
+      const remote = await res.json();
+      if (remote.state && (Number(remote.clientUpdatedAt) || 0) > meta.updatedAt) applyRemote(remote.state, Number(remote.clientUpdatedAt));
+    }
+  } catch {} finally {
+    sync.inFlight = false;
+    if (sync.dirty) queueSync();
+  }
+}
+export function startSync({ endpoint = '/api/sync', onRemote = null } = {}) {
+  if (sync.active) return false;
+  if (!backend() || typeof fetch !== 'function') return false;
+  sync.endpoint = endpoint;
+  sync.onRemote = onRemote;
+  sync.active = true;
+  ensureDeviceId(backend());
+  if (typeof globalThis.addEventListener === 'function') globalThis.addEventListener('online', () => { void pullRemote(); }, { passive: true });
+  void pullRemote();
+  return true;
+}
+
 
 export function load(storage = backend()) {
   if (cache) return cache;
@@ -41,7 +146,15 @@ export function load(storage = backend()) {
 
 export function save(storage = backend()) {
   if (!cache || !storage) return false;
-  try { storage.setItem(KEY, JSON.stringify(cache)); return true; } catch { return false; }
+  try {
+    storage.setItem(KEY, JSON.stringify(cache));
+    if (sync.active && !sync.applying) {
+      const meta = readSyncMeta(storage);
+      writeSyncMeta(storage, { deviceId: meta.deviceId || sync.deviceId, updatedAt: Date.now() });
+      queueSync();
+    }
+    return true;
+  } catch { return false; }
 }
 
 export function settings() { return load().settings; }
@@ -205,6 +318,9 @@ export const bonusState = () => load().bonus || { last: null, run: 0, stickers: 
 
 // Erase all versions of this app's data, including the in-memory copy.
 export function reset(storage = backend()) {
+  clearTimeout(sync.timer);
+  sync.timer = 0;
+  sync.dirty = false;
   cache = null;
   try {
     for (let i = storage.length - 1; i >= 0; i--) {

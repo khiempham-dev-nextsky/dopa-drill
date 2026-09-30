@@ -360,9 +360,11 @@ Cài đặt, lịch sử, tiến độ, sao, thống kê tiến bộ, cúp, lự
 
 ## 10. Lưu trữ và quyền riêng tư
 
-Dữ liệu lưu trong `localStorage` của trình duyệt, khóa là `dopa-drill:v1`, phiên bản dữ liệu là 1. Không có ô nhập tên hay thông tin cá nhân; ứng dụng không gửi lịch sử học tập lên máy chủ. Không có quảng cáo, phân tích bên ngoài, bảng xếp hạng hay đồng bộ thiết bị. Ứng dụng chỉ tải các tệp tĩnh từ máy chủ phân phối.
+Dữ liệu game vẫn được lưu local-first trong `localStorage` của trình duyệt, khóa là `dopa-drill:v1`, phiên bản dữ liệu là 1. Metadata đồng bộ dùng khóa `dopa-drill:sync:v1`. Mọi thay đổi được ghi cục bộ trước; mạng hoặc Neon không sẵn sàng không chặn lượt chơi.
 
-Nếu vùng lưu không dùng được, đọc thất bại hoặc JSON hỏng, ứng dụng khởi động với dữ liệu ban đầu và vẫn cho chơi khi việc lưu thất bại. Xóa dữ liệu trình duyệt, giới hạn lưu trữ, trình duyệt khác hoặc nguồn phân phối khác sẽ không kế thừa bản ghi.
+Khi có `DATABASE_URL` và migration đã chạy, game đồng bộ write-behind tới bảng `dopa_sync` qua `/api/sync`. ID thiết bị được tạo ngẫu nhiên và lưu cục bộ; đây là đồng bộ ẩn danh theo thiết bị, không phải tài khoản hay cơ chế xác thực. Không đưa thông tin cá nhân vào state đồng bộ.
+
+Nếu Neon, API, mạng hoặc vùng lưu cục bộ không dùng được, ứng dụng vẫn khởi động và cho chơi bằng state hiện có. Dữ liệu Neon không được service worker cache. Xóa dữ liệu trình duyệt, dùng thiết bị khác hoặc mất ID thiết bị sẽ không tự kế thừa bản ghi.
 
 | Dữ liệu | Nội dung · giới hạn |
 | --- | --- |
@@ -381,51 +383,59 @@ Nếu dữ liệu lưu chưa có thống kê, các giá trị có thể lấy t�
 
 ### 11.1 Cấu trúc tệp
 
-Ứng dụng dùng ES Modules không có thư viện phụ thuộc và không cần build. Ứng dụng chạy qua phân phối tĩnh, không cần xử lý tính toán phía máy chủ.
+Ứng dụng dùng Next.js App Router làm shell, giữ game ES Modules trong `app/` và tự đồng bộ sang `public/game/` trước khi dev/build. Next cung cấp route PWA và API; gameplay vẫn chạy client-side để không phụ thuộc mạng.
 
-Trang phát hành là [dopa-drill.tanosix.com](https://dopa-drill.tanosix.com/). Cloudflare Workers Static Assets chỉ phân phối các tệp sản phẩm. `app/_headers` dùng `Cache-Control: no-transform` để ngăn máy chủ tự chèn script phân tích truy cập.
+Trang phát hành là [dopa-drill.tanosix.com](https://dopa-drill.tanosix.com/). Khi triển khai Next, cần cấu hình `DATABASE_URL` nếu muốn đồng bộ Neon. `app/_headers` vẫn giữ thông tin cache cho cách phân phối static cũ.
 
 | Tệp/thư mục | Vai trò |
 | --- | --- |
-| `app/index.html`, `app/style.css` | Giao diện và kiểu dáng |
+| `app/layout.jsx`, `app/page.jsx`, `app/globals.css` | Next App Router shell, metadata và khung game |
+| `app/index.html`, `app/style.css` | Entrypoint và kiểu dáng game legacy được sync vào `public/game/` |
 | `app/js/main.js` | Điều phối lượt chơi, nhập liệu, màn hình và hiệu ứng |
 | `app/js/guide.js` | Hướng dẫn đầu tiên, trợ giúp và vị trí đối tượng |
 | `app/js/skills.js`, `app/js/problems.js` | Định nghĩa kỹ năng, tạo bài và thứ tự nhập |
 | `app/js/session.js` | Kế hoạch bài, thành thạo, sao, kỹ năng nguội, hộp thời gian |
 | `app/js/scoring.js`, `app/js/growth.js` | Điểm, Dopa, combo, thống kê và so sánh tiến bộ |
 | `app/js/quests.js`, `app/js/trophies.js`, `app/js/unlocks.js` | Nhiệm vụ, cúp và danh mục hiệu ứng |
-| `app/js/store.js` | Lưu trữ, lịch sử, đăng nhập, búa và đặt lại |
+| `app/js/store.js` | Lưu local-first, lịch sử, đăng nhập, búa và đồng bộ Neon |
 | `app/js/dopakichi.js` | Linh vật SVG tách phần và các động tác |
 | `app/js/fx.js`, `app/js/bg.js` | Hạt Canvas 2D và nền WebGL |
 | `app/js/audio.js`, `app/js/core.js` | Tổng hợp Web Audio, đồng hồ, nội suy và lò xo |
 | `app/fonts/` | Subset cục bộ của Baloo 2 và Nunito, SIL Open Font License |
+| `app/api/sync/route.js` | GET/POST state ẩn danh tới Neon |
+| `db/schema.sql`, `scripts/migrate.mjs` | Schema và migration bảng `dopa_sync` |
+| `public/manifest.webmanifest`, `public/sw.js` | Manifest và service worker PWA |
 | `tests/` | Kiểm thử tạo bài, chấm, lưu trữ, tiến bộ và các phần khác |
-| `tools/build_fonts.sh` | Tạo lại font khi thay đổi chuỗi hiển thị |
-| `docs/` | Đặc tả, chương trình học và tài liệu hình mẫu Dopakichi |
+| `tools/build_fonts.sh`, `scripts/sync-game.mjs` | Tạo font và đồng bộ asset game |
 
 ### 11.2 Khởi động và kiểm thử
 
-Từ thư mục gốc, có thể phân phối tĩnh bằng:
+Từ thư mục gốc, cài dependency và chạy môi trường phát triển bằng:
 
 ```sh
-python3 -m http.server 8000 --bind 0.0.0.0
+npm install
+npm run dev
 ```
 
-Mở `/app/` tại địa chỉ máy chủ. Vì dùng ES Modules, không mở trực tiếp tệp HTML bằng `file://`.
+Mở `http://localhost:3000/`. Nếu cần đồng bộ Neon, sao chép `.env.example` thành `.env.local`, điền `DATABASE_URL`, rồi chạy:
+
+```sh
+npm run db:migrate
+```
+
+`npm run build && npm start` dùng server production. `npm run dev` và `npm run build` tự chạy `scripts/sync-game.mjs`; không cần commit `public/game/`.
 
 Chạy kiểm thử Node.js:
 
 ```sh
-node --test tests/*.test.mjs
+npm test
 ```
 
-Bộ kiểm thử sản phẩm nằm trong 11 tệp `tests/app_*.test.mjs` với 58 trường hợp. Lệnh trên bao gồm các test khác đi kèm nên tổng số có thể khác theo bản phân phối. Môi trường Node chỉ hiển thị số theo tệp có thể dùng `--experimental-test-isolation=none` để tổng hợp từng test.
-
-Kiểm thử bao phủ tạo bài, thứ tự nhập, điểm, lưu và đặt lại, kỹ năng/sao, kế hoạch bài, so sánh tiến bộ, nhiệm vụ, cúp, hiệu ứng mở khóa và tính vị trí hướng dẫn. Test tự động không thay thế kiểm tra kết xuất, chất lượng âm thanh và cảm giác thao tác trên thiết bị thật.
+Bộ kiểm thử sản phẩm hiện có 58 trường hợp. Test bao phủ tạo bài, thứ tự nhập, điểm, lưu và đặt lại, kỹ năng/sao, kế hoạch bài, so sánh tiến bộ, nhiệm vụ, cúp và hiệu ứng mở khóa. Test tự động không thay thế kiểm tra kết xuất, chất lượng âm thanh, cài PWA và cảm giác thao tác trên thiết bị thật.
 
 ### 11.3 Tham số URL kiểm tra
 
-Có thể dùng dạng `/app/?count=6&seed=123`.
+Có thể dùng dạng `/?count=6&seed=123`.
 
 | Tham số | Hành vi |
 | --- | --- |
